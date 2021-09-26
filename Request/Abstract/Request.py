@@ -13,6 +13,7 @@ class Request(ABC):
         self.net_name = None
         self.exception_event = Event()
         self.log_event = Event()
+        self.connectSuccess_event = Event()
         self.client = None
         self.task = dict()
         self.instance = None
@@ -28,3 +29,6 @@ class Request(ABC):
             exception = TrackException(code=code, message=message)
         exception.server = self
         self.exception_event.onEvent(exception=exception)
+
+    def OnConnectSuccess(self, **kwargs):
+        self.connectSuccess_event.onEvent(request=self.instance)

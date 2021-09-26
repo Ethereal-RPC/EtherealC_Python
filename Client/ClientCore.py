@@ -44,23 +44,24 @@ def Register(**kwargs) -> Client:
     def onLog(**kwargs):
         net.OnLog(**kwargs)
 
-    def onException(**kwargs):
-        net.OnException(**kwargs)
-
-    request.client.log_event.register(onLog)
-    request.client.exception_event.register(onException)
+    request.client.log_event.register(net.OnLog)
+    request.client.exception_event.register(net.OnException)
+    request.client.connect_event.register(request.OnConnectSuccess)
     return request.client
 
 
 def UnRegister(**kwargs):
     net_name = kwargs.get("net_name")
+    service_name = kwargs.get("service_name")
     if net_name is not None:
         net = NetCore.Get(net_name)
     else:
         net = kwargs.get("net")
-    if net.server is not None:
-        net.server.doStop()
-        net.serverRequestSend = None
-        net.clientResponseSend = None
-        net.server = None
+    if service_name is not None:
+        request = RequestCore.GetRequest(net=net, service_name=service_name)
+    else:
+        request = kwargs.get("request")
+    if request is not None:
+        request.client.DisConnect()
+        request.client = None
     return True

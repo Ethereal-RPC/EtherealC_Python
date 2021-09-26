@@ -35,18 +35,13 @@ def GetRequest(**kwargs):
     return net.requests.get(request_name)
 
 
-def Register(**kwargs):
+def Register(instance, net, service_name, types=None, config=None):
     from Net.Abstract.Net import NetType
-    instance = kwargs.get("instance")
-    service_name = kwargs.get("service_name")
-    net = kwargs.get("net")
-    if kwargs.get("config") is None:
+    if config is None:
         if net.type == NetType.WebSocket:
-            config: RequestConfig = WebSocketRequestConfig(kwargs.get("types"))
+            config: RequestConfig = WebSocketRequestConfig(types)
         else:
             raise TrackException(ExceptionCode.Core, "未有针对{0}的Request-Register处理".format(net.type))
-    else:
-        config: RequestConfig = kwargs.get("config")
     if net.requests.get(service_name, None) is None:
         if net.type == NetType.WebSocket:
             request = WebSocketRequest(config)

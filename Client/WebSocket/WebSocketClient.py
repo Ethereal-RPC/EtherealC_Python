@@ -23,8 +23,15 @@ class WebSocketClient(Client, WebSocketClientFactory):
         self.prefixes = prefixes
         self.protocol = WebSocketProtocol
         self.handle = None
+        self.connectSign = threading.Event()
         Client.__init__(self, net_name=net_name, service_name=service_name, config=config)
         WebSocketClientFactory.__init__(self, "ws://" + self.prefixes)
+
+    def IsConnect(self):
+        while self.handle is None:
+            return False
+        else:
+            return self.handle.is_open
 
     def clientConnectionLost(self, *args, **kwargs):
         super(WebSocketClient, self).clientConnectionLost(args, kwargs)
@@ -39,18 +46,23 @@ class WebSocketClient(Client, WebSocketClientFactory):
         self.handle.sendMessage(request_body.encode(self.config.encode))
         return True
 
-    def Start(self):
+    def Connect(self):
         try:
             from twisted.python import log
             log.startLogging(sys.stdout)
             url = urlparse("ws://" + self.prefixes)
             reactor.connectTCP(url.hostname, url.port, self)
-            reactor.run()
+            if not reactor.running:
+                reactor.run()
+            self.connectSign.wait(self.config.connectTimeout)
         except Exception as e:
             self.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))
 
-    def Close(self):
-        self.sendClose()
+    def DisConnect(self):
+        try:
+            self.sendClose()
+        except Exception:
+            pass
 
     def OnConnect(self):
         reactor.callInThread(Client.OnConnect, self)

@@ -19,11 +19,15 @@ class Client(ABC):
         self.disconnect_event = Event()
 
     @abstractmethod
-    def Start(self):
+    def Connect(self):
         pass
 
     @abstractmethod
-    def Close(self):
+    def DisConnect(self):
+        pass
+
+    @abstractmethod
+    def IsConnect(self):
         pass
 
     def OnLog(self, log: TrackLog = None, code=None, message=None):

@@ -20,9 +20,10 @@ class WebSocketProtocol(WebSocketClientProtocol):
         return None  # ask for defaults
 
     def onOpen(self):
-        from Client.Abstract.Client import Client
-        self.client: Client = self.factory
+        from Client.WebSocket.WebSocketClient import WebSocketClient
+        self.client: WebSocketClient = self.factory
         self.client.handle = self
+        self.client.connectSign.set()
         self.client.OnConnect()
         print("WebSocket connection open.")
 
