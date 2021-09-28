@@ -1,13 +1,15 @@
-def Request(**top_args):
-    paramters = top_args.get("paramters", None)
-    timeout = top_args.get("timeout", None)
+from enum import Enum
 
+
+def Request(parameters=None, timeout=None, invokeType=None):
     def getFunc(func):
         def Func(*args, **kwargs):
             func(*args, **kwargs)
 
         annotation = RequestAnnotation()
-        annotation.paramters = paramters
+        annotation.parameters = parameters
+        annotation.timeout = timeout
+        annotation.invokeType = invokeType
         Func.__doc__ = annotation
         Func.__name__ = func.__name__
         Func.__annotations__ = func.__annotations__
@@ -17,5 +19,7 @@ def Request(**top_args):
 
 
 class RequestAnnotation:
-    paramters = None
-    timeout = None
+    def __init__(self):
+        self.parameters = None
+        self.timeout = None
+        self.invokeType = None

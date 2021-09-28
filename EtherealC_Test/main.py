@@ -1,5 +1,6 @@
 from numbers import Number
 
+from EtherealC.Request.Decorator import InvokeTypeFlags
 from EtherealC_Test.User import User
 from EtherealC_Test.UserRequest import UserRequest
 from EtherealC_Test.UserService import UserService
@@ -130,7 +131,18 @@ def connect(client=None):
     result = request.Add(2, 3)
     print(result)
 
+class A:
+
+    def __init__(self):
+        self.ss = 3
+
+    def DDD(self,*args,**kwargs):
+        self.KKK(*args, **kwargs)
+
+    def KKK(self,s,d,f):
+        print(s+d+f)
+
 
 if __name__ == '__main__':
-    # Single()
-    NetNode()
+    Single()
+    # NetNode()

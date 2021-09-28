@@ -1,0 +1,22 @@
+Metadata-Version: 2.1
+Name: com-ethereal-client
+Version: 0.0.3
+Summary: Ethereal PythonClient
+Home-page: https://github.com/Ethereal-RPC/EtherealC_Python
+Author: BaiYang
+Author-email: 839336369@qq.com
+License: UNKNOWN
+Project-URL: Bug Tracker, https://github.com/Ethereal-RPC/EtherealC_Python
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+# EtherealS_Python
+
+跨平台RPC网络框架服务端_Python版本
+
+
