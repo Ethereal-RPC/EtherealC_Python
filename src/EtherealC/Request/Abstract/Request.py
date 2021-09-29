@@ -12,11 +12,13 @@ from EtherealC.Core.Event import Event
 from EtherealC.Request.Decorator.Request import RequestAnnotation
 
 
-def register(instance, net_name, service_name: str, config: RequestConfig):
+def register(instance, net_name, service_name: str, types, config: RequestConfig):
     from EtherealC.Core.Model.TrackException import ExceptionCode, TrackException
+    if config is not None:
+        instance.config = config
     instance.net_name = net_name
     instance.service_name = service_name
-    instance.config = config
+    instance.types = types
     for method_name in dir(instance):
         func = getattr(instance, method_name)
         if isinstance(func.__doc__, RequestAnnotation):
@@ -37,14 +39,14 @@ def register(instance, net_name, service_name: str, config: RequestConfig):
                     for param in params:
                         if param is not None:
                             # annotations 有 module 有 class
-                            rpc_type: AbstrackType = instance.config.types.typesByType.get(param, None)
+                            rpc_type: AbstrackType = instance.types.typesByType.get(param, None)
                             if rpc_type is None:
                                 raise TrackException(code=ExceptionCode.Core, message="对应的{0}类型的抽象类型尚未注册"
                                                      .format(param.__name__))
                             method_id += "-" + rpc_type.name
                 else:
                     for abstract_name in annotation.parameters:
-                        if instance.config.types.typesByName.get(abstract_name, None) is None:
+                        if instance.types.typesByName.get(abstract_name, None) is None:
                             raise TrackException(code=ExceptionCode.Core, message="对应的{0}抽象类型对应的实际类型尚未注册"
                                                  .format(abstract_name))
                         method_id += "-" + abstract_name
@@ -65,6 +67,7 @@ class Request(ABC):
         self.log_event = Event()
         self.connectSuccess_event = Event()
         self.client = None
+        self.types = None
         self.task = dict()
 
     def OnLog(self, log: TrackLog = None, code=None, message=None):

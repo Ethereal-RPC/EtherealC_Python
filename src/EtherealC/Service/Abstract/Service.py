@@ -9,10 +9,12 @@ from EtherealC.Core import Event
 from EtherealC.Service.Decorator.Service import ServiceAnnotation
 
 
-def register(instance, net_name, service_name, config: ServiceConfig):
-    instance.config = config
+def register(instance, net_name, service_name, types, config: ServiceConfig):
+    if config is not None:
+        instance.config = config
     instance.net_name = net_name
     instance.service_name = service_name
+    instance.types = types
     for method_name in dir(instance):
         func = getattr(instance, method_name)
         if isinstance(func.__doc__, ServiceAnnotation):
@@ -25,7 +27,7 @@ def register(instance, net_name, service_name, config: ServiceConfig):
                 else:
                     params = list(func.__annotations__.values())
                 for param in params:
-                    rpc_type: AbstrackType = instance.config.types.typesByType.get(param, None)
+                    rpc_type: AbstrackType = instance.types.typesByType.get(param, None)
                     if rpc_type is not None:
                         method_id = method_id + "-" + rpc_type.name
                     else:
@@ -33,7 +35,7 @@ def register(instance, net_name, service_name, config: ServiceConfig):
                                              .format(name=func.__name__, param=param.__name__))
             else:
                 for param in func.__doc__.paramters:
-                    rpc_type: AbstrackType = instance.config.types.abstractType.get(type(param), None)
+                    rpc_type: AbstrackType = instance.types.abstractType.get(type(param), None)
                     if rpc_type is not None:
                         method_id = method_id + "-" + rpc_type.name
                     else:
@@ -54,6 +56,7 @@ class Service(ABC):
         self.exception_event: Event = Event.Event()
         self.log_event: Event = Event.Event()
         self.interceptorEvent = list()
+        self.types = None
 
     def OnLog(self, log: TrackLog = None, code=None, message=None):
         if log is None:

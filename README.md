@@ -1,3 +1,3 @@
-# EtherealS_Python
+# EtherealC_Python
 
-跨平台RPC网络框架服务端_Python版本
+跨平台RPC网络框架客户端_Python版本

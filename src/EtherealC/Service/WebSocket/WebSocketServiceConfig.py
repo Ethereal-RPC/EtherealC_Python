@@ -4,5 +4,5 @@ from EtherealC.Service.Abstract.ServiceConfig import ServiceConfig
 
 class WebSocketServiceConfig(ServiceConfig):
 
-    def __init__(self, _type: AbstractTypes):
-        super().__init__(_type)
+    def __init__(self):
+        super().__init__()

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: com-ethereal-client
-Version: 0.0.3
+Version: 0.0.7
 Summary: Ethereal PythonClient
 Home-page: https://github.com/Ethereal-RPC/EtherealC_Python
 Author: BaiYang
@@ -15,8 +15,8 @@ Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE.txt
 
-# EtherealS_Python
+# EtherealC_Python
 
-跨平台RPC网络框架服务端_Python版本
+跨平台RPC网络框架客户端_Python版本
 
 

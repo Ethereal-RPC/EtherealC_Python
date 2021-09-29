@@ -45,6 +45,7 @@ src/EtherealC/Request/__init__.py
 src/EtherealC/Request/Abstract/Request.py
 src/EtherealC/Request/Abstract/RequestConfig.py
 src/EtherealC/Request/Abstract/__init__.py
+src/EtherealC/Request/Decorator/InvokeTypeFlags.py
 src/EtherealC/Request/Decorator/Request.py
 src/EtherealC/Request/Decorator/__init__.py
 src/EtherealC/Request/WebSocket/WebSocketRequest.py

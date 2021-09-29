@@ -15,6 +15,8 @@ from twisted.internet import reactor
 class WebSocketClient(Client, WebSocketClientFactory):
 
     def __init__(self, net_name, service_name, prefixes, config: WebSocketClientConfig):
+        if config is None:
+            config = WebSocketClientConfig()
         self.prefixes = prefixes
         self.protocol = WebSocketProtocol
         self.handle = None
@@ -30,11 +32,11 @@ class WebSocketClient(Client, WebSocketClientFactory):
 
     def clientConnectionLost(self, *args, **kwargs):
         super(WebSocketClient, self).clientConnectionLost(args, kwargs)
-        self.OnDisConnect()
+        self.OnDisConnectFail()
 
     def clientConnectionFailed(self, *args, **kwargs):
         super(WebSocketClient, self).clientConnectionFailed(args, kwargs)
-        self.OnDisConnect()
+        self.OnDisConnectFail()
 
     def SendClientRequestModel(self, request: ClientRequestModel):
         request_body = self.config.ClientRequestModelSerialize(request)
@@ -49,8 +51,11 @@ class WebSocketClient(Client, WebSocketClientFactory):
             reactor.connectTCP(url.hostname, url.port, self)
             if not reactor.running:
                 reactor.run()
-            self.connectSign.wait(self.config.connectTimeout)
+            self.connectSign.wait(self.config.connectTimeout/1000)
+            if self.handle is None:
+                self.OnDisConnectFail()
         except Exception as e:
+            self.OnDisConnectFail()
             self.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))
 
     def DisConnect(self):
@@ -59,8 +64,11 @@ class WebSocketClient(Client, WebSocketClientFactory):
         except Exception:
             pass
 
-    def OnConnect(self):
-        reactor.callInThread(Client.OnConnect, self)
+    def OnConnectSuccess(self):
+        reactor.callInThread(Client.OnConnectSuccess, self)
+
+    def OnDisConnectFail(self):
+        reactor.callInThread(Client.OnDisConnectFail, self)
 
     def OnDisConnect(self):
         reactor.callInThread(Client.OnDisConnect, self)

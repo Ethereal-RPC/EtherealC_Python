@@ -19,16 +19,10 @@ def Get(**kwargs):
     return net.requests.get(request_name, None)
 
 
-def Register(instance, net, service_name, types=None, config=None):
-    from EtherealC.Net.Abstract.Net import NetType
-    if config is None:
-        if net.type == NetType.WebSocket:
-            config: RequestConfig = WebSocketRequestConfig(types)
-        else:
-            raise TrackException(ExceptionCode.Core, "未有针对{0}的Request-Register处理".format(net.type))
+def Register(instance, net, service_name, types, config=None):
     if net.requests.get(service_name, None) is None:
         from EtherealC.Request.Abstract import Request
-        Request.register(instance, net.net_name, service_name, config)
+        Request.register(instance, net.net_name, service_name, types, config)
         net.requests[service_name] = instance
         instance.log_event.register(net.OnLog)
         instance.exception_event.register(net.OnException)

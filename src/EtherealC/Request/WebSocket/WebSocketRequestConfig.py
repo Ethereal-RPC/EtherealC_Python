@@ -4,7 +4,7 @@ from EtherealC.Request.Abstract.RequestConfig import RequestConfig
 
 class WebSocketRequestConfig(RequestConfig):
 
-    def __init__(self, config_type: AbstractTypes):
-        super().__init__(config_type)
+    def __init__(self):
+        super().__init__()
 
 

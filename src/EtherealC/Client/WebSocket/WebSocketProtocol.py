@@ -24,7 +24,7 @@ class WebSocketProtocol(WebSocketClientProtocol):
         self.client: WebSocketClient = self.factory
         self.client.handle = self
         self.client.connectSign.set()
-        self.client.OnConnect()
+        self.client.OnConnectSuccess()
         print("WebSocket connection open.")
 
     def onMessage(self, payload, isBinary):
@@ -56,4 +56,5 @@ class WebSocketProtocol(WebSocketClientProtocol):
                     self.client.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))
 
     def onClose(self, wasClean, code, reason):
+        self.client.OnDisConnect()
         print("WebSocket connection closed: {0}".format(reason))

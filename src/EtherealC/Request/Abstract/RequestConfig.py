@@ -3,6 +3,5 @@ from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 
 class RequestConfig:
 
-    def __init__(self, config_type: AbstractTypes):
-        self.types = config_type
+    def __init__(self):
         self.timeout = -1

@@ -29,7 +29,9 @@ def Register(**kwargs) -> Client:
     service_name = kwargs.get("service_name")
     prefixes = kwargs.get("prefixes")
     config = kwargs.get("config")
-    request = RequestCore.Get(net=net, service_name=service_name)
+    request = kwargs.get("request")
+    if request is None:
+        request = RequestCore.Get(net=net, service_name=service_name)
     if config is None:
         config = WebSocketClientConfig()
     if request is None:
@@ -45,7 +47,7 @@ def Register(**kwargs) -> Client:
 
     request.client.log_event.register(net.OnLog)
     request.client.exception_event.register(net.OnException)
-    request.client.connect_event.register(request.OnConnectSuccess)
+    request.client.connectSuccess_event.register(request.OnConnectSuccess)
     return request.client
 
 
@@ -60,7 +62,7 @@ def UnRegister(**kwargs):
         request = RequestCore.Get(net=net, service_name=service_name)
     else:
         request = kwargs.get("request")
-    if request is not None:
+    if request.client is not None:
         request.client.DisConnect()
         request.client = None
     return True

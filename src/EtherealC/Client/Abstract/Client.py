@@ -9,21 +9,20 @@ from EtherealC.Core.Event import Event
 
 class Client(ABC):
 
-    def __init__(self, net_name=None, service_name=None, config: ClientConfig = None):
+    def __init__(self, net_name, service_name, config: ClientConfig):
+        if config is None:
+            config = ClientConfig()
         self.config = config
         self.net_name = net_name
         self.service_name = service_name
         self.exception_event = Event()
         self.log_event = Event()
-        self.connect_event = Event()
+        self.connectSuccess_event = Event()
+        self.connectFail_event = Event()
         self.disconnect_event = Event()
 
     @abstractmethod
     def Connect(self):
-        pass
-
-    @abstractmethod
-    def DisConnect(self):
         pass
 
     @abstractmethod
@@ -42,11 +41,14 @@ class Client(ABC):
         exception.server = self
         self.exception_event.onEvent(exception=exception)
 
-    def OnConnect(self):
-        self.connect_event.onEvent(client=self)
+    def OnConnectSuccess(self):
+        self.connectSuccess_event.onEvent(client=self)
 
     def OnDisConnect(self):
         self.disconnect_event.onEvent(client=self)
+
+    def OnDisConnectFail(self):
+        self.connectFail_event.onEvent(client=self)
 
     @abstractmethod
     def SendClientRequestModel(self, request: ClientRequestModel):

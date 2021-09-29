@@ -65,7 +65,7 @@ def Single():
     # 分布式这里需要引用客户端框架，但是目前Python还没有客户端版本，暂且搁置.
     # EtherealC.NativeClient.ClientConfig clientConfig = new EtherealC.NativeClient.ClientConfig();
     net.config.netNodeMode = False
-    client.connect_event.register(connect)
+    client.connectSuccess_event.register(connect)
     client.disconnect_event.register(disconnect)
     net.Publish()
     print("服务器初始化完成....")
@@ -100,7 +100,7 @@ def NetNode():
     # 注册服务
     service = ServiceCore.Register(instance=UserService(), net=net, service_name="Client", types=types)
     # 注册请求
-    request = RequestCore.Register(net=net, instance=UserRequest(), service_name="Server", types=types)
+    request = RequestCore.Register(instance=UserRequest(), net=net, service_name="Server", types=types)
     # 突出Service为正常类
     service.userRequest = request
     ips = list()
@@ -130,18 +130,6 @@ def connect(client=None):
     request = RequestCore.Get(net_name=client.net_name, service_name=client.service_name)
     result = request.Add(2, 3)
     print(result)
-
-class A:
-
-    def __init__(self):
-        self.ss = 3
-
-    def DDD(self,*args,**kwargs):
-        self.KKK(*args, **kwargs)
-
-    def KKK(self,s,d,f):
-        print(s+d+f)
-
 
 if __name__ == '__main__':
     Single()

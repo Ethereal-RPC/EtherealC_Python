@@ -18,18 +18,10 @@ def Get(**kwargs):
     return net.services.get(service_name, None)
 
 
-def Register(instance, net, service_name, types=None, config=None):
-    if config is None and types is None:
-        raise TrackException(ExceptionCode.Core, "types和config必须提供一个")
-    if config is None:
-        if net.type == NetType.WebSocket:
-            config = WebSocketServiceConfig(types)
-        else:
-            raise TrackException(ExceptionCode.Core, "未有针对{0}的Service-Register处理".format(net.type))
-
+def Register(instance, net, service_name, types, config=None):
     if net.services.get(service_name, None) is None:
         from EtherealC.Service import Abstract
-        Abstract.Service.register(instance, net.net_name, service_name, config)
+        Abstract.Service.register(instance, net.net_name, service_name, types, config)
         net.services[service_name] = instance
         instance.log_event.register(net.OnLog)
         instance.exception_event.register(net.OnException)
