@@ -1,6 +1,7 @@
 from numbers import Number
 
-
+from EtherealC.Client.WebSocket.WebSocketClient import WebSocketClient
+from EtherealC.Net.WebSocket.WebSocketNet import WebSocketNet
 from EtherealC.Request.Decorator import InvokeTypeFlags
 from EtherealC_Test.User import User
 from EtherealC_Test.UserRequest import UserRequest
@@ -22,10 +23,6 @@ def OnException(**kwargs):
 def OnLog(**kwargs):
     exception = kwargs.get("log")
     print(exception)
-
-
-def CreateMethod():
-    return User()
 
 
 def Single():
@@ -51,17 +48,17 @@ def Single():
     types.add(type=str, type_name="String")
     types.add(type=bool, type_name="Bool")
     # 建立网关
-    net = NetCore.Register(net_name="demo", type=NetType.WebSocket)
+    net = NetCore.Register(WebSocketNet("demo"))
     net.exception_event.register(OnException)
     net.log_event.register(OnLog)
     # 注册服务
-    service = ServiceCore.Register(instance=UserService(), net=net, service_name="Client", types=types)
+    service = ServiceCore.Register(service=UserService(name="Client", types=types), net=net)
     # 注册请求
-    request = RequestCore.Register(net=net, instance=UserRequest(), service_name="Server", types=types)
+    request = RequestCore.Register(net=net, request=UserRequest(name="Server", types=types))
     # 突出Service为正常类
     service.userRequest = request
     # 注册连接
-    client = ClientCore.Register(net=net, service_name="Server", prefixes=prefixes, create_method=CreateMethod)
+    client = ClientCore.Register(net=net, client=WebSocketClient(prefixes=prefixes))
     ips = list()
     # 分布式这里需要引用客户端框架，但是目前Python还没有客户端版本，暂且搁置.
     # EtherealC.NativeClient.ClientConfig clientConfig = new EtherealC.NativeClient.ClientConfig();
@@ -95,13 +92,13 @@ def NetNode():
     types.add(type=str, type_name="String")
     types.add(type=bool, type_name="Bool")
     # 建立网关
-    net = NetCore.Register(net_name="demo", type=NetType.WebSocket)
+    net = NetCore.Register(WebSocketNet("demo"))
     net.exception_event.register(OnException)
     net.log_event.register(OnLog)
     # 注册服务
-    service = ServiceCore.Register(instance=UserService(), net=net, service_name="Client", types=types)
+    service = ServiceCore.Register(service=UserService(name="Client", types=types), net=net)
     # 注册请求
-    request = RequestCore.Register(instance=UserRequest(), net=net, service_name="Server", types=types)
+    request = RequestCore.Register(net=net, request=UserRequest(name="Server", types=types))
     # 突出Service为正常类
     service.userRequest = request
     ips = list()
@@ -128,7 +125,7 @@ def disconnect(client=None):
 
 
 def connect(client=None):
-    request = RequestCore.Get(net_name=client.net_name, service_name=client.service_name)
+    request = RequestCore.Get(net_name=client.name, service_name=client.name)
     result = request.Add(2, 3)
     print(result)
 

@@ -7,8 +7,8 @@ from EtherealC.Service.WebSocket.WebSocketServiceConfig import WebSocketServiceC
 
 
 def Get(**kwargs):
-    net_name = kwargs.get("net_name")
-    service_name = kwargs.get("service_name")
+    net_name = kwargs.get("name")
+    service_name = kwargs.get("name")
     if net_name is not None:
         net: Net = NetCore.Get(net_name)
     else:
@@ -18,16 +18,17 @@ def Get(**kwargs):
     return net.services.get(service_name, None)
 
 
-def Register(instance, net, service_name, types, config=None):
-    if net.services.get(service_name, None) is None:
+def Register(net, service):
+    if net.services.get(service.name, None) is None:
         from EtherealC.Service import Abstract
-        Abstract.Service.register(instance, net.net_name, service_name, types, config)
-        net.services[service_name] = instance
-        instance.log_event.register(net.OnLog)
-        instance.exception_event.register(net.OnException)
-        return instance
+        Abstract.Service.register(service)
+        net.services[service.name] = service
+        service.net_name = net.name
+        service.log_event.register(net.OnLog)
+        service.exception_event.register(net.OnException)
+        return service
     else:
-        raise TrackException(ExceptionCode.Core, "{0}-{1}Service已经注册".format(net.service_name, service_name))
+        raise TrackException(ExceptionCode.Core, "{0}-{1}Service已经注册".format(net.name, service.name))
 
 
 def UnRegister(**kwargs):

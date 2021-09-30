@@ -13,8 +13,8 @@ from EtherealC.Request.WebSocket.WebSocketRequestConfig import WebSocketRequestC
 
 class WebSocketRequest(Request):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self,name,types):
+        super().__init__(name,types)
         self.config = WebSocketRequestConfig()
         self.random = Random()
 
@@ -33,7 +33,7 @@ class WebSocketRequest(Request):
                                              .format(arg.__name__))
                     parameters.append(abstract_type.serialize(arg))
 
-                request = ClientRequestModel(method_id=method_id, params=parameters, service=self.service_name)
+                request = ClientRequestModel(method_id=method_id, params=parameters, service=self.name)
                 if return_name is None:
                     self.client.SendClientRequestModel(request)
                 else:

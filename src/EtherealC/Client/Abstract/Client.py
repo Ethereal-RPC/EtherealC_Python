@@ -9,12 +9,11 @@ from EtherealC.Core.Event import Event
 
 class Client(ABC):
 
-    def __init__(self, net_name, service_name, config: ClientConfig):
-        if config is None:
-            config = ClientConfig()
-        self.config = config
-        self.net_name = net_name
-        self.service_name = service_name
+    def __init__(self, prefixes):
+        self.config = None
+        self.prefixes = prefixes
+        self.service_name = None
+        self.net_name = None
         self.exception_event = Event()
         self.log_event = Event()
         self.connectSuccess_event = Event()

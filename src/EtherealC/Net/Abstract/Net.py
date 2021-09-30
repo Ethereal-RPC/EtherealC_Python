@@ -17,9 +17,9 @@ class NetType(Enum):
 
 
 class Net(ABC):
-    def __init__(self,net_name):
-        self.net_name = net_name
-        self.config: WebSocketNetConfig = None
+    def __init__(self, name):
+        self.name = name
+        self.config = None
         self.services = dict()
         self.requests = dict()
         self.exception_event = Event()
@@ -38,22 +38,22 @@ class Net(ABC):
                 result = method.__call__(*request.Params)
             else:
                 raise TrackException(code=ExceptionCode.NotFoundService,
-                                     message="未找到方法{0}-{1}-{2}".format(self.net_name, request.Service,
+                                     message="未找到方法{0}-{1}-{2}".format(self.name, request.Service,
                                                                        request.MethodId))
         else:
-            raise TrackException(code=ExceptionCode.NotFoundService, message="未找到服务{0}-{1}".format(self.net_name, request.Service))
+            raise TrackException(code=ExceptionCode.NotFoundService, message="未找到服务{0}-{1}".format(self.name, request.Service))
 
     def ClientResponseReceiveProcess(self, response: ClientResponseModel):
         request = self.requests.get(response.Service)
         if request is None:
             raise TrackException(code=ExceptionCode.Runtime,
-                                 message="未找到请求{0}-{1}".format(self.net_name, response.Service))
+                                 message="未找到请求{0}-{1}".format(self.name, response.Service))
         model: ClientRequestModel = request.task.get(response.Id)
         if model is not None:
             model.Set(response)
         else:
             raise TrackException(code=ExceptionCode.Runtime,
-                                 message="{0}-{1}-{2}返回的请求ID未找到".format(self.net_name, response.Service, response.Id))
+                                 message="{0}-{1}-{2}返回的请求ID未找到".format(self.name, response.Service, response.Id))
 
 
     @abstractmethod

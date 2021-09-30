@@ -24,31 +24,18 @@ def Get(**kwargs):
         return None
 
 
-def Register(**kwargs) -> Client:
-    net: Net = kwargs.get("net")
-    service_name = kwargs.get("service_name")
-    prefixes = kwargs.get("prefixes")
-    config = kwargs.get("config")
-    request = kwargs.get("request")
+def Register(client: Client,request=None,service_name=None,net=None) -> Client:
     if request is None:
         request = RequestCore.Get(net=net, service_name=service_name)
     if request is None:
         raise TrackException(ExceptionCode.Core, "未找到{0}-{1}请求".format(net.type, service_name))
-    if net.type == NetType.WebSocket:
-        if config is None:
-            config = WebSocketClientConfig()
-        request.client = WebSocketClient(net_name=net.net_name, service_name=request.service_name, prefixes=prefixes,
-                                         config=config)
-    else:
-        raise TrackException(ExceptionCode.Core, "未有针对{0}的Server-Register处理".format(net.type))
-
-    def onLog(**kwargs):
-        net.OnLog(**kwargs)
-
+    request.client = client
+    client.net_name = request.net_name
+    client.service_name = request.name
     request.client.log_event.register(net.OnLog)
     request.client.exception_event.register(net.OnException)
     request.client.connectSuccess_event.register(request.OnConnectSuccess)
-    return request.client
+    return client
 
 
 def UnRegister(**kwargs):

@@ -1,13 +1,16 @@
 import threading
 
+from EtherealC.Client.WebSocket.WebSocketClient import WebSocketClient
 from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Net.Abstract.Net import Net
+from EtherealC.Net.WebSocket.WebSocketNetConfig import WebSocketNetConfig
 
 
 class WebSocketNet(Net):
-    def __init__(self, net_name):
-        super().__init__(net_name=net_name)
+    def __init__(self, name):
+        super().__init__(name=name)
+        self.config = WebSocketNetConfig()
         self.connectSign = threading.Event()
 
     def Publish(self):
@@ -27,17 +30,15 @@ class WebSocketNet(Net):
             types.add(type=bool, type_name="Bool")
             from EtherealC.Service import ServiceCore
             from EtherealC.Net.NetNodeClient.Service.ClientNetNodeService import ClientNetNodeService
-            netNodeService = ServiceCore.Register(net=self, instance=ClientNetNodeService(),
-                                                  service_name="ClientNetNodeService", types=types)
+            netNodeService = ServiceCore.Register(service=ClientNetNodeService(name="ClientNetNodeService", types=types), net=self)
             from EtherealC.Request import RequestCore
             from EtherealC.Net.NetNodeClient.Request.ServerNetNodeRequest import ServerNetNodeRequest
-            netNodeRequest = RequestCore.Register(net=self, instance=ServerNetNodeRequest(),
-                                                  service_name="ServerNetNodeService", types=types)
+            netNodeRequest = RequestCore.Register(net=self, request=ServerNetNodeRequest(name="ServerNetNodeService", types=types))
 
             def NetNodeSearchRunner():
                 try:
                     from EtherealC.Net import NetCore
-                    while NetCore.Get(self.net_name) is not None:
+                    while NetCore.Get(self.name) is not None:
                         self.NetNodeSearch()
                         self.connectSign.wait(timeout=self.config.netNodeHeartbeatCycle/1000)
                         self.connectSign.clear()
@@ -57,7 +58,7 @@ class WebSocketNet(Net):
     def NetNodeSearch(self):
         flag = False
         for request in self.requests.values():
-            if request.client is None and request.service_name != "ServerNetNodeService":
+            if request.client is None and request.name != "ServerNetNodeService":
                 flag = True
                 break
         if flag is True:
@@ -65,8 +66,7 @@ class WebSocketNet(Net):
                 prefixes = item["prefixes"]
                 config = item["config"]
                 from EtherealC.Client import ClientCore
-                client = ClientCore.Register(net=self, service_name="ServerNetNodeService", prefixes=prefixes,
-                                             config=config)
+                client = ClientCore.Register(net=self, service_name="ServerNetNodeService",client=WebSocketClient(prefixes=prefixes))
                 client.Connect(isSync=True)
                 try:
                     if client.IsConnect():
@@ -76,17 +76,17 @@ class WebSocketNet(Net):
                                                                                service_name="ServerNetNodeService")
                         if netNodeRequest is None:
                             raise TrackException(code=ExceptionCode.Runtime, message="无法找到{0}-ServerNetNodeService"
-                                                 .format(self.net_name))
+                                                 .format(self.name))
                         for request in self.requests.values():
                             if request.client is not None:
                                 continue
-                            node = netNodeRequest.GetNetNode(request.service_name)
+                            node = netNodeRequest.GetNetNode(request.name)
                             if node is None:
                                 raise TrackException(code=ExceptionCode.Runtime,
                                                      message="{0}-{1}-在NetNode分布式中未找到节点"
-                                                     .format(self.net_name, request.service_name))
-                            requestClient = ClientCore.Register(net=self, service_name=request.service_name,
-                                                                prefixes=node.Prefixes[0])
+                                                     .format(self.name, request.name))
+                            requestClient = ClientCore.Register(net=self, service_name=request.name,
+                                                                client=WebSocketClient(prefixes=prefixes))
                             requestClient.disconnect_event.register(self.ClientConnectFailEvent)
                             requestClient.Connect()
                         break
@@ -95,5 +95,5 @@ class WebSocketNet(Net):
 
     def ClientConnectFailEvent(self, client):
         from EtherealC.Client import ClientCore
-        ClientCore.UnRegister(net=self, service_name=client.service_name)
+        ClientCore.UnRegister(net=self, service_name=client.name)
         self.connectSign.set()

@@ -14,15 +14,13 @@ from twisted.internet import reactor
 
 class WebSocketClient(Client, WebSocketClientFactory):
 
-    def __init__(self, net_name, service_name, prefixes, config: WebSocketClientConfig):
-        if config is None:
-            config = WebSocketClientConfig()
-        self.prefixes = prefixes
+    def __init__(self, prefixes):
+        Client.__init__(self, prefixes=prefixes)
+        WebSocketClientFactory.__init__(self, "ws://" + self.prefixes)
+        self.config = WebSocketClientConfig()
         self.protocol = WebSocketProtocol
         self.handle = None
         self.syncSign = threading.Event()
-        WebSocketClientFactory.__init__(self, "ws://" + self.prefixes)
-        Client.__init__(self, net_name=net_name, service_name=service_name, config=config)
 
     def IsConnect(self):
         while self.handle is None:

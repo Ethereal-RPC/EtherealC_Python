@@ -12,15 +12,10 @@ from EtherealC.Core.Event import Event
 from EtherealC.Request.Decorator.Request import RequestAnnotation
 
 
-def register(instance, net_name, service_name: str, types, config: RequestConfig):
+def register(request):
     from EtherealC.Core.Model.TrackException import ExceptionCode, TrackException
-    if config is not None:
-        instance.config = config
-    instance.net_name = net_name
-    instance.service_name = service_name
-    instance.types = types
-    for method_name in dir(instance):
-        func = getattr(instance, method_name)
+    for method_name in dir(request):
+        func = getattr(request, method_name)
         if isinstance(func.__doc__, RequestAnnotation):
             assert isinstance(func, MethodType)
             annotation: RequestAnnotation = func.__doc__
@@ -39,35 +34,35 @@ def register(instance, net_name, service_name: str, types, config: RequestConfig
                     for param in params:
                         if param is not None:
                             # annotations 有 module 有 class
-                            rpc_type: AbstrackType = instance.types.typesByType.get(param, None)
+                            rpc_type: AbstrackType = request.types.typesByType.get(param, None)
                             if rpc_type is None:
                                 raise TrackException(code=ExceptionCode.Core, message="对应的{0}类型的抽象类型尚未注册"
                                                      .format(param.__name__))
                             method_id += "-" + rpc_type.name
                 else:
                     for abstract_name in annotation.parameters:
-                        if instance.types.typesByName.get(abstract_name, None) is None:
+                        if request.types.typesByName.get(abstract_name, None) is None:
                             raise TrackException(code=ExceptionCode.Core, message="对应的{0}抽象类型对应的实际类型尚未注册"
                                                  .format(abstract_name))
                         method_id += "-" + abstract_name
-                invoke = instance.getInvoke(method=func, method_id=method_id, return_name=return_name, annotation=annotation)
+                invoke = request.getInvoke(method=func, method_id=method_id, return_name=return_name, annotation=annotation)
                 invoke.__annotations__ = func.__annotations__
                 invoke.__doc__ = func.__doc__
                 invoke.__name__ = func.__name__
-                setattr(instance, method_name, invoke)
+                setattr(request, method_name, invoke)
 
 
 class Request(ABC):
 
-    def __init__(self):
+    def __init__(self,name,types):
         self.config = None
-        self.service_name = None
+        self.name = name
         self.net_name = None
         self.exception_event = Event()
         self.log_event = Event()
         self.connectSuccess_event = Event()
         self.client = None
-        self.types = None
+        self.types = types
         self.task = dict()
 
     def OnLog(self, log: TrackLog = None, code=None, message=None):
