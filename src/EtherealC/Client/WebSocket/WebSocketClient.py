@@ -20,7 +20,7 @@ class WebSocketClient(Client, WebSocketClientFactory):
         self.prefixes = prefixes
         self.protocol = WebSocketProtocol
         self.handle = None
-        self.connectSign = threading.Event()
+        self.syncSign = threading.Event()
         WebSocketClientFactory.__init__(self, "ws://" + self.prefixes)
         Client.__init__(self, net_name=net_name, service_name=service_name, config=config)
 
@@ -31,44 +31,40 @@ class WebSocketClient(Client, WebSocketClientFactory):
             return self.handle.is_open
 
     def clientConnectionLost(self, *args, **kwargs):
-        super(WebSocketClient, self).clientConnectionLost(args, kwargs)
-        self.OnDisConnectFail()
+        super().clientConnectionLost(args, kwargs)
+        self.OnDisConnect()
 
     def clientConnectionFailed(self, *args, **kwargs):
-        super(WebSocketClient, self).clientConnectionFailed(args, kwargs)
-        self.OnDisConnectFail()
+        super().clientConnectionFailed(args, kwargs)
+        self.syncSign.set()
+        self.syncSign.clear()
+        self.OnConnectFail()
 
     def SendClientRequestModel(self, request: ClientRequestModel):
         request_body = self.config.ClientRequestModelSerialize(request)
         self.handle.sendMessage(request_body.encode(self.config.encode))
         return True
 
-    def Connect(self):
+    def Connect(self, isSync=False):
         try:
+            from twisted.internet import reactor
             from twisted.python import log
             log.startLogging(sys.stdout)
             url = urlparse("ws://" + self.prefixes)
             reactor.connectTCP(url.hostname, url.port, self)
-            if not reactor.running:
-                reactor.run()
-            self.connectSign.wait(self.config.connectTimeout/1000)
-            if self.handle is None:
-                self.OnDisConnectFail()
+            if isSync:
+                self.syncSign.wait()
         except Exception as e:
-            self.OnDisConnectFail()
             self.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))
 
     def DisConnect(self):
-        try:
-            self.sendClose()
-        except Exception:
-            pass
+        self.doStop()
 
     def OnConnectSuccess(self):
         reactor.callInThread(Client.OnConnectSuccess, self)
 
-    def OnDisConnectFail(self):
-        reactor.callInThread(Client.OnDisConnectFail, self)
+    def OnConnectFail(self):
+        reactor.callInThread(Client.OnConnectFail, self)
 
     def OnDisConnect(self):
         reactor.callInThread(Client.OnDisConnect, self)

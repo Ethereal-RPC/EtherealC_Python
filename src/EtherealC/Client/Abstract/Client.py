@@ -47,7 +47,7 @@ class Client(ABC):
     def OnDisConnect(self):
         self.disconnect_event.onEvent(client=self)
 
-    def OnDisConnectFail(self):
+    def OnConnectFail(self):
         self.connectFail_event.onEvent(client=self)
 
     @abstractmethod

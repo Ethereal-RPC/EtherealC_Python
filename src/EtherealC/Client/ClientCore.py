@@ -32,11 +32,11 @@ def Register(**kwargs) -> Client:
     request = kwargs.get("request")
     if request is None:
         request = RequestCore.Get(net=net, service_name=service_name)
-    if config is None:
-        config = WebSocketClientConfig()
     if request is None:
         raise TrackException(ExceptionCode.Core, "未找到{0}-{1}请求".format(net.type, service_name))
     if net.type == NetType.WebSocket:
+        if config is None:
+            config = WebSocketClientConfig()
         request.client = WebSocketClient(net_name=net.net_name, service_name=request.service_name, prefixes=prefixes,
                                          config=config)
     else:

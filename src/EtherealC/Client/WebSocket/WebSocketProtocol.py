@@ -23,9 +23,9 @@ class WebSocketProtocol(WebSocketClientProtocol):
         from EtherealC.Client.WebSocket.WebSocketClient import WebSocketClient
         self.client: WebSocketClient = self.factory
         self.client.handle = self
-        self.client.connectSign.set()
+        self.client.syncSign.set()
+        self.client.syncSign.clear()
         self.client.OnConnectSuccess()
-        print("WebSocket connection open.")
 
     def onMessage(self, payload, isBinary):
         if isBinary:
@@ -54,7 +54,3 @@ class WebSocketProtocol(WebSocketClientProtocol):
                     reactor.callInThread(net.ServerRequestReceiveProcess, request)
                 except Exception as e:
                     self.client.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))
-
-    def onClose(self, wasClean, code, reason):
-        self.client.OnDisConnect()
-        print("WebSocket connection closed: {0}".format(reason))

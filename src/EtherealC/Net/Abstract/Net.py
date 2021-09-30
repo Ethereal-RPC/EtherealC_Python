@@ -33,7 +33,7 @@ class Net(ABC):
             if method is not None:
                 params_id = request.MethodId.split("-")
                 for i in range(1, params_id.__len__()):
-                    rpc_type: AbstrackType = service.config.types.typesByName.get(params_id[i], None)
+                    rpc_type: AbstrackType = service.types.typesByName.get(params_id[i], None)
                     request.Params[i-1] = rpc_type.deserialize(request.Params[i-1])
                 result = method.__call__(*request.Params)
             else:
@@ -44,7 +44,7 @@ class Net(ABC):
             raise TrackException(code=ExceptionCode.NotFoundService, message="未找到服务{0}-{1}".format(self.net_name, request.Service))
 
     def ClientResponseReceiveProcess(self, response: ClientResponseModel):
-        request: EtherealC.Request.Abstract.Request.Request = self.requests.get(response.Service)
+        request = self.requests.get(response.Service)
         if request is None:
             raise TrackException(code=ExceptionCode.Runtime,
                                  message="未找到请求{0}-{1}".format(self.net_name, response.Service))

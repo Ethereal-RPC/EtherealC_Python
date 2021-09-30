@@ -7,4 +7,5 @@ class NetConfig(ABC):
         self.netNodeMode = False
         self.netNodeIps = None
         self.netNodeHeartbeatCycle = 60000
+        self.maxThreadCount = 5
 

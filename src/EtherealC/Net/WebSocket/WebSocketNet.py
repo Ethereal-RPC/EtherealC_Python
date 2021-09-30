@@ -11,6 +11,13 @@ class WebSocketNet(Net):
         self.connectSign = threading.Event()
 
     def Publish(self):
+        def reactorStart():
+            from twisted.internet import reactor
+            if not reactor.running:
+                reactor.suggestThreadPoolSize(10)
+                reactor.run(False)
+
+        threading.Thread(target=reactorStart).start()
         if self.config.netNodeMode is True:
             types = AbstractTypes()
             types.add(type=int, type_name="Int")
@@ -26,20 +33,19 @@ class WebSocketNet(Net):
             from EtherealC.Net.NetNodeClient.Request.ServerNetNodeRequest import ServerNetNodeRequest
             netNodeRequest = RequestCore.Register(net=self, instance=ServerNetNodeRequest(),
                                                   service_name="ServerNetNodeService", types=types)
-            from twisted.internet import reactor
 
             def NetNodeSearchRunner():
                 try:
-                    while True:
+                    from EtherealC.Net import NetCore
+                    while NetCore.Get(self.net_name) is not None:
                         self.NetNodeSearch()
                         self.connectSign.wait(timeout=self.config.netNodeHeartbeatCycle/1000)
                         self.connectSign.clear()
                 except Exception as exception:
                     self.OnException(
-                        TrackException(exception=exception, message="NetNodeSearch循环报错", code=ExceptionCode.Runtime))
+                            TrackException(exception=exception, message="NetNodeSearch循环报错", code=ExceptionCode.Runtime))
 
-            reactor.callInThread(NetNodeSearchRunner)
-            reactor.run()
+            threading.Thread(target=NetNodeSearchRunner).start()
         else:
             try:
                 for request in self.requests.values():
@@ -61,12 +67,13 @@ class WebSocketNet(Net):
                 from EtherealC.Client import ClientCore
                 client = ClientCore.Register(net=self, service_name="ServerNetNodeService", prefixes=prefixes,
                                              config=config)
+                client.Connect(isSync=True)
                 try:
-                    client.Connect()
                     if client.IsConnect():
                         from EtherealC.Request import RequestCore
                         from EtherealC.Net.NetNodeClient.Request.ServerNetNodeRequest import ServerNetNodeRequest
-                        netNodeRequest: ServerNetNodeRequest = RequestCore.Get(net=self, service_name="ServerNetNodeService")
+                        netNodeRequest: ServerNetNodeRequest = RequestCore.Get(net=self,
+                                                                               service_name="ServerNetNodeService")
                         if netNodeRequest is None:
                             raise TrackException(code=ExceptionCode.Runtime, message="无法找到{0}-ServerNetNodeService"
                                                  .format(self.net_name))
@@ -78,10 +85,11 @@ class WebSocketNet(Net):
                                 raise TrackException(code=ExceptionCode.Runtime,
                                                      message="{0}-{1}-在NetNode分布式中未找到节点"
                                                      .format(self.net_name, request.service_name))
-                            requestClient = ClientCore.Register(net=self, service_name=request.service_name, prefixes=node.Prefixes[0])
+                            requestClient = ClientCore.Register(net=self, service_name=request.service_name,
+                                                                prefixes=node.Prefixes[0])
                             requestClient.disconnect_event.register(self.ClientConnectFailEvent)
                             requestClient.Connect()
-                        return
+                        break
                 finally:
                     ClientCore.UnRegister(net=self, service_name="ServerNetNodeService")
 

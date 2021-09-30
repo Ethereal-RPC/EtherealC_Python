@@ -1,5 +1,6 @@
 from numbers import Number
 
+
 from EtherealC.Request.Decorator import InvokeTypeFlags
 from EtherealC_Test.User import User
 from EtherealC_Test.UserRequest import UserRequest
@@ -28,7 +29,6 @@ def CreateMethod():
 
 
 def Single():
-    prefixes = "127.0.0.1:28015/NetDemo/"
     port = "28015"
     print("请选择端口(0-3)")
     mode = input()
@@ -42,6 +42,7 @@ def Single():
         port = "28018"
     else:
         port = mode
+    prefixes = "127.0.0.1:28015/NetDemo/".replace("28015", port)
     print("Client-{0}".format(prefixes))
     types = AbstractTypes()
     types.add(type=int, type_name="Int")
@@ -72,7 +73,6 @@ def Single():
 
 
 def NetNode():
-    prefixes = "127.0.0.1:28015/NetDemo/"
     port = "28015"
     print("请选择端口(0-3)")
     mode = input()
@@ -86,6 +86,7 @@ def NetNode():
         port = "28018"
     else:
         port = mode
+    prefixes = "127.0.0.1:28015/NetDemo/".replace("28015", port)
     print("Client-{0}".format(prefixes))
     types = AbstractTypes()
     types.add(type=int, type_name="Int")
@@ -132,5 +133,6 @@ def connect(client=None):
     print(result)
 
 if __name__ == '__main__':
-    Single()
-    # NetNode()
+    # Single()
+    NetNode()
+
