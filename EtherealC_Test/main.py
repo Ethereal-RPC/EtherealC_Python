@@ -58,7 +58,7 @@ def Single():
     # 突出Service为正常类
     service.userRequest = request
     # 注册连接
-    client = ClientCore.Register(net=net, client=WebSocketClient(prefixes=prefixes))
+    client = ClientCore.Register(request=request, client=WebSocketClient(prefixes=prefixes))
     ips = list()
     # 分布式这里需要引用客户端框架，但是目前Python还没有客户端版本，暂且搁置.
     # EtherealC.NativeClient.ClientConfig clientConfig = new EtherealC.NativeClient.ClientConfig();
@@ -70,21 +70,7 @@ def Single():
 
 
 def NetNode():
-    port = "28015"
-    print("请选择端口(0-3)")
-    mode = input()
-    if mode == "0":
-        port = "28015"
-    elif mode == "1":
-        port = "28016"
-    elif mode == "2":
-        port = "28017"
-    elif mode == "3":
-        port = "28018"
-    else:
-        port = mode
-    prefixes = "ethereal://127.0.0.1:28015/NetDemo/".replace("28015", port)
-    print("Client-{0}".format(prefixes))
+    prefixes = "ethereal://127.0.0.1:28015/NetDemo/"
     types = AbstractTypes()
     types.add(type=int, type_name="Int")
     types.add(type=type(User()), type_name="User")
@@ -125,7 +111,7 @@ def disconnect(client=None):
 
 
 def connect(client=None):
-    request = RequestCore.Get(net_name=client.name, service_name=client.name)
+    request = RequestCore.Get(net_name=client.net_name, service_name=client.service_name)
     result = request.Add(2, 3)
     print(result)
 

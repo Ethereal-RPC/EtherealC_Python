@@ -27,8 +27,8 @@ def Get(**kwargs):
 def Register(client: Client,request=None,service_name=None,net=None) -> Client:
     if service_name is not None and net is not None:
         request = RequestCore.Get(net=net, service_name=service_name)
-    if request is None:
-        raise TrackException(ExceptionCode.Core, "未找到{0}-{1}请求".format(net.type, service_name))
+        if request is None:
+            raise TrackException(ExceptionCode.Core, "未找到{0}-{1}请求".format(net.name, service_name))
     request.client = client
     client.net_name = request.net_name
     client.service_name = request.name
