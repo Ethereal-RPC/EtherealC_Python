@@ -13,8 +13,8 @@ from EtherealC.Request.WebSocket.WebSocketRequestConfig import WebSocketRequestC
 
 class WebSocketRequest(Request):
 
-    def __init__(self,name,types):
-        super().__init__(name,types)
+    def __init__(self):
+        super().__init__()
         self.config = WebSocketRequestConfig()
         self.random = Random()
 

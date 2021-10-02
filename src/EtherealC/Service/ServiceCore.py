@@ -6,13 +6,9 @@ from EtherealC.Service.WebSocket.WebSocketService import WebSocketService
 from EtherealC.Service.WebSocket.WebSocketServiceConfig import WebSocketServiceConfig
 
 
-def Get(**kwargs):
-    net_name = kwargs.get("name")
-    service_name = kwargs.get("name")
+def Get(service_name, net=None, net_name=None):
     if net_name is not None:
         net: Net = NetCore.Get(net_name)
-    else:
-        net: Net = kwargs.get("net")
     if net is None:
         return None
     return net.services.get(service_name, None)

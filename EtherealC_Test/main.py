@@ -39,7 +39,7 @@ def Single():
         port = "28018"
     else:
         port = mode
-    prefixes = "127.0.0.1:28015/NetDemo/".replace("28015", port)
+    prefixes = "ethereal://127.0.0.1:28015/NetDemo/".replace("28015", port)
     print("Client-{0}".format(prefixes))
     types = AbstractTypes()
     types.add(type=int, type_name="Int")
@@ -83,7 +83,7 @@ def NetNode():
         port = "28018"
     else:
         port = mode
-    prefixes = "127.0.0.1:28015/NetDemo/".replace("28015", port)
+    prefixes = "ethereal://127.0.0.1:28015/NetDemo/".replace("28015", port)
     print("Client-{0}".format(prefixes))
     types = AbstractTypes()
     types.add(type=int, type_name="Int")

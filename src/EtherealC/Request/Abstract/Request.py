@@ -3,6 +3,7 @@ from abc import ABC
 from types import MethodType
 
 from EtherealC.Core.Model.AbstractType import AbstrackType
+from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 from EtherealC.Core.Model.ClientRequestModel import ClientRequestModel
 from EtherealC.Core.Model.ClientResponseModel import ClientResponseModel
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
@@ -28,7 +29,7 @@ def register(request):
                     params = types[:-1:]
                 else:
                     raise TrackException(code=ExceptionCode.Core,
-                                         message="%s-%s方法中的返回值未定义！".format(net_name, func.__name__))
+                                         message="%s-%s方法中的返回值未定义！".format(request.net_name, func.__name__))
 
                 if annotation.parameters is None:
                     for param in params:
@@ -54,16 +55,16 @@ def register(request):
 
 class Request(ABC):
 
-    def __init__(self,name,types):
+    def __init__(self):
         self.config = None
-        self.name = name
+        self.name = None
         self.net_name = None
         self.exception_event = Event()
         self.log_event = Event()
         self.connectSuccess_event = Event()
         self.client = None
-        self.types = types
         self.task = dict()
+        self.types = AbstractTypes()
 
     def OnLog(self, log: TrackLog = None, code=None, message=None):
         if log is None:

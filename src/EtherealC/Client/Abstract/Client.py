@@ -11,7 +11,7 @@ class Client(ABC):
 
     def __init__(self, prefixes):
         self.config = None
-        self.prefixes = prefixes
+        self.prefixes: str = prefixes
         self.service_name = None
         self.net_name = None
         self.exception_event = Event()

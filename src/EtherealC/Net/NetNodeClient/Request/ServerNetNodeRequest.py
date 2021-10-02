@@ -4,8 +4,11 @@ from EtherealC.Request.WebSocket.WebSocketRequest import WebSocketRequest
 
 
 class ServerNetNodeRequest(WebSocketRequest):
-    def __init__(self,name,types):
-        super().__init__(name,types)
+    def __init__(self, name, types):
+        super().__init__()
+        self.name = name
+        self.types = types
+
     @Request()
     def GetNetNode(self, servicename: str) -> NetNode:
         pass

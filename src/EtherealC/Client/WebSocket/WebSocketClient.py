@@ -16,7 +16,7 @@ class WebSocketClient(Client, WebSocketClientFactory):
 
     def __init__(self, prefixes):
         Client.__init__(self, prefixes=prefixes)
-        WebSocketClientFactory.__init__(self, "ws://" + self.prefixes)
+        WebSocketClientFactory.__init__(self,self.prefixes.replace("ethereal://", "ws://"))
         self.config = WebSocketClientConfig()
         self.protocol = WebSocketProtocol
         self.handle = None

@@ -5,7 +5,9 @@ from EtherealC.Request.Decorator.Request import Request
 class UserRequest(WebSocketRequest):
 
     def __init__(self,name,types):
-        super().__init__(name,types)
+        super().__init__()
+        self.name = name
+        self.types = types
 
     @Request()
     def Register(self, username: str, id: int) -> bool:

@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from types import MethodType
 
 from EtherealC.Core.Model.AbstractType import AbstrackType
+from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Core.Model.TrackLog import TrackLog
 from EtherealC.Service.Abstract import ServiceConfig
@@ -43,15 +44,15 @@ def register(service):
 
 
 class Service(ABC):
-    def __init__(self,name,types):
+    def __init__(self):
         self.config: ServiceConfig = None
         self.methods = dict()
         self.net_name = None
-        self.name = name
+        self.name = None
         self.exception_event: Event = Event.Event()
         self.log_event: Event = Event.Event()
         self.interceptorEvent = list()
-        self.types = types
+        self.types = AbstractTypes()
 
     def OnLog(self, log: TrackLog = None, code=None, message=None):
         if log is None:
