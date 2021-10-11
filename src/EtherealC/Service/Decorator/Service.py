@@ -1,22 +1,8 @@
-def Service(**top_args):
-    paramters = top_args.get("paramters", None)
-    timeout = top_args.get("timeout", -1)
+class Service:
 
-    def getFunc(func):
-        def Func(*args, **kwargs):
-            return func(*args, **kwargs)
+    def __init__(self):
+        self.timeout = -1
 
-        annotation = ServiceAnnotation()
-        annotation.paramters = paramters
-        annotation.timeout = timeout
-        Func.__doc__ = annotation
-        Func.__annotations__ = func.__annotations__
-        Func.__name__ = func.__name__
-        return Func
-
-    return getFunc
-
-
-class ServiceAnnotation:
-    timeout = -1
-    paramters = None
+    def __call__(self, func):
+        func.__doc__ = self
+        return func

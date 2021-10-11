@@ -7,36 +7,24 @@ from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Core.Model.TrackLog import TrackLog
 from EtherealC.Service.Abstract import ServiceConfig
 from EtherealC.Core import Event
-from EtherealC.Service.Decorator.Service import ServiceAnnotation
 
 
 def register(service):
     for method_name in dir(service):
         func = getattr(service, method_name)
-        if isinstance(func.__doc__, ServiceAnnotation):
-            assert isinstance(func, MethodType)
+        from EtherealC.Service.Decorator.Service import Service
+        if isinstance(func.__doc__, Service):
             method_id = func.__name__
-            if func.__doc__.paramters is None:
-
-                if func.__annotations__.get("return") is not None:
-                    params = list(func.__annotations__.values())[:-1:]
-                else:
-                    params = list(func.__annotations__.values())
-                for param in params:
-                    rpc_type: AbstrackType = service.types.typesByType.get(param, None)
-                    if rpc_type is not None:
-                        method_id = method_id + "-" + rpc_type.name
-                    else:
-                        raise TrackException(code=ExceptionCode.Core, message="{name}方法中的{param}类型参数尚未注册"
-                                             .format(name=func.__name__, param=param.__name__))
+            if func.__annotations__.get("return") is not None:
+                parameterInfos = list(func.__annotations__.values())[:-1:]
             else:
-                for param in func.__doc__.paramters:
-                    rpc_type: AbstrackType = service.types.abstractType.get(type(param), None)
-                    if rpc_type is not None:
-                        method_id = method_id + "-" + rpc_type.name
-                    else:
-                        raise TrackException(code=ExceptionCode.Core,
-                                             message="%s方法中的%s抽象类型参数尚未注册".format(func.__name__, param))
+                parameterInfos = list(func.__annotations__.values())
+            for parameterInfo in parameterInfos:
+                abstractType: AbstrackType = service.types.typesByType.get(parameterInfo, None)
+                if abstractType is None:
+                    raise TrackException(code=ExceptionCode.Core, message="对应的{0}类型的抽象类型尚未注册"
+                                         .format(parameterInfo))
+                method_id += "-" + abstractType.name
             if service.methods.get(method_id, None) is not None:
                 raise TrackException(code=ExceptionCode.Core,
                                      message="服务方法{name}已存在，无法重复注册！".format(name=method_id))

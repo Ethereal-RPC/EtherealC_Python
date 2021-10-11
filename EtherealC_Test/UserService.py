@@ -13,4 +13,4 @@ class UserService(WebSocketService):
 
     @Service()
     def Say(self, sender: User, message: str):
-        print(sender.UserName + ":" + message)
+        print(sender.Username + ":" + message)

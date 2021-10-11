@@ -9,4 +9,3 @@ class ClientResponseModel:
         self.Error: Error = kwargs.get("error")
         self.Id: str = kwargs.get("request_id")
         self.Service: str = kwargs.get("service")
-        self.ResultType: str = kwargs.get("result_type")

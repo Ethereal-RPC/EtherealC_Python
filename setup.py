@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="com-ethereal-client",
-    version="0.1.2",
+    version="0.1.4",
     author="BaiYang",
     author_email="839336369@qq.com",
     description="Ethereal PythonClient",

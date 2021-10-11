@@ -31,11 +31,14 @@ class Net(ABC):
         if service is not None:
             method: classmethod = service.methods.get(request.MethodId, None)
             if method is not None:
-                params_id = request.MethodId.split("-")
-                for i in range(1, params_id.__len__()):
-                    rpc_type: AbstrackType = service.types.typesByName.get(params_id[i], None)
-                    request.Params[i-1] = rpc_type.deserialize(request.Params[i-1])
-                result = method.__call__(*request.Params)
+                parameters = list()
+                parameterInfos = list(method.__annotations__.values())[:-1:]
+                i = 0
+                for parameterInfo in parameterInfos:
+                    abstractType: AbstrackType = service.types.typesByType.get(parameterInfo, None)
+                    parameters.append(abstractType.deserialize(request.Params[i]))
+                    i = i + 1
+                result = method.__call__(*parameters)
             else:
                 raise TrackException(code=ExceptionCode.NotFoundService,
                                      message="未找到方法{0}-{1}-{2}".format(self.name, request.Service,
