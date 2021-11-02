@@ -59,45 +59,8 @@ def Single():
     service.userRequest = request
     # 注册连接
     client = ClientCore.Register(request=request, client=WebSocketClient(prefixes=prefixes))
-    ips = list()
-    # 分布式这里需要引用客户端框架，但是目前Python还没有客户端版本，暂且搁置.
-    # EtherealC.NativeClient.ClientConfig clientConfig = new EtherealC.NativeClient.ClientConfig();
-    net.config.netNodeMode = False
     client.connectSuccess_event.register(connect)
     client.disconnect_event.register(disconnect)
-    net.Publish()
-    print("服务器初始化完成....")
-
-
-def NetNode():
-    prefixes = "ethereal://127.0.0.1:28015/NetDemo/"
-    types = AbstractTypes()
-    types.add(type=int, type_name="Int")
-    types.add(type=type(User()), type_name="User")
-    types.add(type=Number, type_name="Number")
-    types.add(type=str, type_name="String")
-    types.add(type=bool, type_name="Bool")
-    # 建立网关
-    net = NetCore.Register(WebSocketNet("demo"))
-    net.exception_event.register(OnException)
-    net.log_event.register(OnLog)
-    # 注册服务
-    service = ServiceCore.Register(service=UserService(name="Client", types=types), net=net)
-    # 注册请求
-    request = RequestCore.Register(net=net, request=UserRequest(name="Server", types=types))
-    # 突出Service为正常类
-    service.userRequest = request
-    ips = list()
-    # 分布式这里需要引用客户端框架，但是目前Python还没有客户端版本，暂且搁置.
-    net.config.netNodeMode = True
-    from EtherealC.Client.WebSocket.WebSocketClientConfig import WebSocketClientConfig
-    ips.append(dict(prefixes=prefixes.replace("28015", "28015"), config=WebSocketClientConfig()))
-    ips.append(dict(prefixes=prefixes.replace("28015", "28016"), config=WebSocketClientConfig()))
-    ips.append(dict(prefixes=prefixes.replace("28015", "28017"), config=WebSocketClientConfig()))
-    ips.append(dict(prefixes=prefixes.replace("28015", "28018"), config=WebSocketClientConfig()))
-    net.config.netNodeIps = ips
-    requestProxy = RequestCore.Get(net=net, service_name="Server")
-    requestProxy.connectSuccess_event.register(requestConnect)
     net.Publish()
     print("服务器初始化完成....")
 
