@@ -1,17 +1,18 @@
 import sys
-from abc import ABC
+from abc import ABC, abstractmethod
 from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Core.Model.TrackLog import TrackLog
 from EtherealC.Core.Event import Event
+from EtherealC.Request.Decorator.Request import Request
 
 
 def register(instance):
-    from EtherealC.Request.Decorator.Request import Request
+    from EtherealC.Request.Decorator.RequestMethod import RequestMethod
     for method_name in dir(instance):
         func = getattr(instance, method_name)
-        if isinstance(func.__doc__, Request):
-            annotation: Request = func.__doc__
+        if isinstance(func.__doc__, RequestMethod):
+            annotation: RequestMethod = func.__doc__
             if annotation is not None:
                 invoke = instance.getInvoke(func=func, annotation=annotation)
                 invoke.__annotations__ = func.__annotations__
@@ -20,6 +21,7 @@ def register(instance):
                 setattr(instance, method_name, invoke)
 
 
+@Request()
 class Request(ABC):
 
     def __init__(self):
@@ -47,3 +49,11 @@ class Request(ABC):
 
     def OnConnectSuccess(self, **kwargs):
         self.connectSuccess_event.onEvent(request=self)
+
+    @abstractmethod
+    def Initialize(self):
+        pass
+
+    @abstractmethod
+    def UnInitialize(self):
+        pass

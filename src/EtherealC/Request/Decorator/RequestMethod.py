@@ -3,9 +3,10 @@ from enum import Enum
 from EtherealC.Request.Decorator import InvokeTypeFlags
 
 
-class Request:
+class RequestMethod:
     def __init__(self):
-        pass
+        self.timeout = None
+        self.invokeType = InvokeTypeFlags.Remote | InvokeTypeFlags.ReturnRemote
 
     def __call__(self, func):
         func.__doc__ = self

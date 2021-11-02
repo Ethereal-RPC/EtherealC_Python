@@ -113,9 +113,10 @@ def disconnect(client=None):
 def connect(client=None):
     request = RequestCore.Get(net_name=client.net_name, service_name=client.service_name)
     result = request.Add(2, 3)
-    print(result)
+    print("最终结果：{0}".format(result))
+
 
 if __name__ == '__main__':
-    # Single()
-    NetNode()
+    Single()
+    # NetNode()
 

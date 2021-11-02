@@ -1,4 +1,5 @@
 import sys
+from abc import ABC
 from random import Random
 
 from EtherealC.Core.Model.AbstractType import AbstrackType
@@ -10,16 +11,16 @@ from EtherealC.Request.Abstract.Request import Request
 from EtherealC.Request.WebSocket.WebSocketRequestConfig import WebSocketRequestConfig
 
 
-class WebSocketRequest(Request):
+class WebSocketRequest(Request, ABC):
 
     def __init__(self):
         super().__init__()
         self.config = WebSocketRequestConfig()
         self.random = Random()
 
-    from EtherealC.Request.Decorator.Request import Request
+    from EtherealC.Request.Decorator.RequestMethod import RequestMethod
 
-    def getInvoke(self, func, annotation: Request):
+    def getInvoke(self, func, annotation: RequestMethod):
         def invoke(*args, **kwargs):
             from EtherealC.Request.Decorator import InvokeTypeFlags
             localResult = None

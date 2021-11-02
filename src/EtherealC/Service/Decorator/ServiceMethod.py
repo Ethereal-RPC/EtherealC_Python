@@ -1,7 +1,7 @@
-class Service:
+class ServiceMethod:
 
     def __init__(self):
-        pass
+        self.timeout = -1
 
     def __call__(self, func):
         func.__doc__ = self
