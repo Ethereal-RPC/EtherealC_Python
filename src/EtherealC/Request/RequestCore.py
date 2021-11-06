@@ -1,4 +1,5 @@
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
+from EtherealC.Request.Abstract.Request import Request
 
 from EtherealC.Request.Abstract.RequestConfig import RequestConfig
 from EtherealC.Request.WebSocket.WebSocketRequest import WebSocketRequest
@@ -24,7 +25,7 @@ def Register(net, request):
         from EtherealC.Request.Abstract import Request
         Request.register(request)
         net.requests[request.name] = request
-        request.net_name = net.name
+        request.net = net
         request.log_event.register(net.OnLog)
         request.exception_event.register(net.OnException)
     else:
@@ -32,15 +33,8 @@ def Register(net, request):
     return request
 
 
-def UnRegister(**kwargs):
-    net_name = kwargs.get("net_name")
-    service_name = kwargs.get("service_name")
-    if net_name is not None:
-        from EtherealC.Net import NetCore
-        net = NetCore.Get(net_name)
-    else:
-        net = kwargs.get("net")
-    if net is not None:
-        if net.requests.get(service_name, None) is not None:
-            del net.requests[service_name]
+def UnRegister(request: Request):
+    if request.net.requests.get(request.name, None) is not None:
+        del request.net.requests[request.name]
+    request.net = None
     return True

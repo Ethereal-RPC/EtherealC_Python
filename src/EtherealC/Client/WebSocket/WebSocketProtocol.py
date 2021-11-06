@@ -31,9 +31,6 @@ class WebSocketProtocol(WebSocketClientProtocol):
         if isBinary:
             return
         else:
-            net = NetCore.Get(self.client.net_name)
-            if net is None:
-                raise TrackException(code=ExceptionCode.Runtime, message="{0}找不到Net".format(self.net_name))
             data = payload.decode(self.client.config.encode)
             data_type = json.loads(data)["Type"]
             if data_type == "ER-1.0-ClientResponse":
@@ -42,7 +39,7 @@ class WebSocketProtocol(WebSocketClientProtocol):
                     raise TrackException(code=ExceptionCode.Runtime, message="接收到了错误的ClientResponse:{0}".format(data))
                 try:
                     from twisted.internet import reactor
-                    reactor.callInThread(net.ClientResponseReceiveProcess, response)
+                    reactor.callInThread(self.client.net.ClientResponseReceiveProcess, response)
                 except Exception as e:
                     self.client.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))
             elif data_type == "ER-1.0-ServerRequest":
@@ -51,6 +48,6 @@ class WebSocketProtocol(WebSocketClientProtocol):
                     raise TrackException(code=ExceptionCode.Runtime, message="接收到了错误的ServerRequest:{0}".format(data))
                 try:
                     from twisted.internet import reactor
-                    reactor.callInThread(net.ServerRequestReceiveProcess, request)
+                    reactor.callInThread(self.client.net.ServerRequestReceiveProcess, request)
                 except Exception as e:
                     self.client.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))

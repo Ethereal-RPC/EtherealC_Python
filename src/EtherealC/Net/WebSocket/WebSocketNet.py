@@ -22,8 +22,8 @@ class WebSocketNet(Net):
 
         threading.Thread(target=reactorStart).start()
         try:
-            for request in self.requests.values():
-                request.client.Connect()
+            if self.client is not None:
+                self.client.Connect()
         except Exception as e:
             self.OnException(exception=TrackException(exception=e))
         return True

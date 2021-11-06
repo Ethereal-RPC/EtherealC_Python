@@ -24,6 +24,7 @@ class Net(ABC):
         self.requests = dict()
         self.exception_event = Event()
         self.log_event = Event()
+        self.client = None
         self.type = None
 
     def ServerRequestReceiveProcess(self, request: ServerRequestModel):

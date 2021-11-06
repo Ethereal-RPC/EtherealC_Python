@@ -54,12 +54,13 @@ def Single():
     # 注册服务
     service = ServiceCore.Register(service=UserService(name="Client", types=types), net=net)
     # 注册请求
-    request = RequestCore.Register(net=net, request=UserRequest(name="Server", types=types))
+    from EtherealC.Request.Abstract.Request import Request
+    request: Request = RequestCore.Register(net=net, request=UserRequest(name="Server", types=types))
     # 突出Service为正常类
     service.userRequest = request
     # 注册连接
-    client = ClientCore.Register(request=request, client=WebSocketClient(prefixes=prefixes))
-    client.connectSuccess_event.register(connect)
+    client = ClientCore.Register(net=net, client=WebSocketClient(prefixes=prefixes))
+    request.connectSuccess_event.register(requestConnect)
     client.disconnect_event.register(disconnect)
     net.Publish()
     print("服务器初始化完成....")
@@ -71,12 +72,6 @@ def requestConnect(request=None):
 
 def disconnect(client=None):
     print("连接失败")
-
-
-def connect(client=None):
-    request = RequestCore.Get(net_name=client.net_name, service_name=client.service_name)
-    result = request.Add(2, 3)
-    print("最终结果：{0}".format(result))
 
 
 if __name__ == '__main__':

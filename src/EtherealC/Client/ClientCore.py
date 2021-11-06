@@ -1,55 +1,32 @@
-from EtherealC.Client.WebSocket.WebSocketClientConfig import WebSocketClientConfig
-from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Client.Abstract import Client
 from EtherealC.Net import NetCore
-from EtherealC.Net.Abstract.Net import Net, NetType
-from EtherealC.Client.WebSocket.WebSocketClient import WebSocketClient
-from EtherealC.Request import RequestCore
+from EtherealC.Net.Abstract.Net import Net
 
 
-def Get(**kwargs):
-    net_name = kwargs.get("net_name")
-    service_name = kwargs.get("service_name")
-    if net_name is not None:
-        net = NetCore.Get(net_name)
-    else:
-        net = kwargs.get("net")
-    if service_name is not None:
-        request = RequestCore.Get(net=net, service_name=service_name)
-    else:
-        request = kwargs.get("request")
-    if request is not None:
-        return request.client
+def Get(net_name):
+    net = NetCore.Get(net_name)
+    if net is not None:
+        return net.client
     else:
         return None
 
 
-def Register(client: Client,request=None,service_name=None,net=None) -> Client:
-    if service_name is not None and net is not None:
-        request = RequestCore.Get(net=net, service_name=service_name)
-        if request is None:
-            raise TrackException(ExceptionCode.Core, "未找到{0}-{1}请求".format(net.name, service_name))
-    request.client = client
-    client.net_name = request.net_name
-    client.service_name = request.name
-    request.client.log_event.register(request.OnLog)
-    request.client.exception_event.register(request.OnException)
-    request.client.connectSuccess_event.register(request.OnConnectSuccess)
+def Register(client: Client, net: Net) -> Client:
+    net.client = client
+    client.net = net
+    client.log_event.register(net.OnLog)
+    client.exception_event.register(net.OnException)
+    client.connectSuccess_event.register(OnConnectSuccess)
     return client
 
 
-def UnRegister(**kwargs):
-    net_name = kwargs.get("net_name")
-    service_name = kwargs.get("service_name")
-    if net_name is not None:
-        net = NetCore.Get(net_name)
-    else:
-        net = kwargs.get("net")
-    if service_name is not None:
-        request = RequestCore.Get(net=net, service_name=service_name)
-    else:
-        request = kwargs.get("request")
-    if request is not None and request.client is not None:
-        request.client.DisConnect()
-        request.client = None
+def OnConnectSuccess(client):
+    for request in client.net.requests.values():
+        request.OnConnectSuccess()
+
+
+def UnRegister(client):
+    client.net.client = None
+    client.net = None
+    client.DisConnect()
     return True

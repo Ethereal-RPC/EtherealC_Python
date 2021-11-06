@@ -37,7 +37,7 @@ class Service(ABC):
     def __init__(self):
         self.config: ServiceConfig = None
         self.methods = dict()
-        self.net_name = None
+        self.net = None
         self.name = None
         self.exception_event: Event = Event.Event()
         self.log_event: Event = Event.Event()

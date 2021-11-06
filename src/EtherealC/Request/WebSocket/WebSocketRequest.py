@@ -41,7 +41,7 @@ class WebSocketRequest(Request, ABC):
                     params.append(abstractType.serialize(args[i]))
                 request = ClientRequestModel(method_id=method_id, params=params, service=self.name)
                 if func.__annotations__.get("return") is None:
-                    self.client.SendClientRequestModel(request)
+                    self.net.client.SendClientRequestModel(request)
                 else:
                     request.Id = str(self.random.randint(0, sys.maxsize))
                     while self.task.get(request.Id) is not None:
@@ -51,7 +51,7 @@ class WebSocketRequest(Request, ABC):
                         timeout = annotation.timeout
                         if timeout is not None:
                             timeout = self.config.timeout
-                        if self.client.SendClientRequestModel(request):
+                        if self.net.client.SendClientRequestModel(request):
                             response: ClientResponseModel = request.Get(timeout)
                             if response is not None:
                                 if response.Error is not None:

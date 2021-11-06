@@ -1,3 +1,4 @@
+from EtherealC.Client import ClientCore
 from EtherealC.Request import RequestCore
 from EtherealC.Service import ServiceCore
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
@@ -18,14 +19,11 @@ def Register(net: Net) -> Net:
     return nets[net.name]
 
 
-def UnRegister(**kwargs):
-    name = kwargs.get("net_name")
-    if name is not None:
-        net = Get(name)
-        if net is not None:
-            for request in net.requests:
-                RequestCore.UnRegister(net_name=net, service_name=request.name)
-            for service in net.services:
-                ServiceCore.UnRegister(net_name=net, service_name=service.name)
-            del nets[name]
+def UnRegister(net):
+    for request in net.requests:
+        RequestCore.UnRegister(net_name=net, service_name=request.name)
+    for service in net.services:
+        ServiceCore.UnRegister(net_name=net, service_name=service.name)
+    ClientCore.UnRegister(client=net.client)
+    del nets[net.name]
     return True
