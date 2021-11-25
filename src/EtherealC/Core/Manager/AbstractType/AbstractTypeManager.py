@@ -1,11 +1,11 @@
 import json
 
-from EtherealC.Core.Model import TrackException
-from EtherealC.Core.Model.AbstractType import AbstrackType
+from EtherealC.Core.Manager.AbstractType.AbstractType import AbstrackType
+from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Utils import JsonTool
 
 
-class AbstractTypes:
+class AbstractTypeManager:
 
     def __init__(self):
         self.typesByType = dict()
@@ -34,12 +34,8 @@ class AbstractTypes:
 
         rpc_type.deserialize = deserializeFunc
         rpc_type.serialize = serializeFunc
-        self.detect(rpc_type.type, rpc_type.name)
+        if self.typesByName.get(rpc_type.name) is not None:
+            raise TrackException(ExceptionCode.Core, "真实类中已包含" + rpc_type.name)
         self.typesByName[rpc_type.name] = rpc_type
-        self.typesByType[rpc_type.type] = rpc_type
-
-    def detect(self, _type, type_name):
-        if self.typesByName.get(type_name, None) is not None:
-            raise TrackException(ExceptionCode.Core, "真实类中已包含" + type_name)
-        if self.typesByType.get(_type, None) is not None:
-            raise TrackException(ExceptionCode.Core, "抽象类中已包含" + type_name)
+        if self.typesByType.get(rpc_type.type) is None:
+            self.typesByType[rpc_type.type] = rpc_type

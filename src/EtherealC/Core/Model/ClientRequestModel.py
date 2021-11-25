@@ -5,12 +5,11 @@ from EtherealC.Core.Model.ClientResponseModel import ClientResponseModel
 
 class ClientRequestModel:
 
-    def __init__(self, **kwargs):
+    def __init__(self, mapping = None,params=dict(),id=None):
         self.Type = "ER-1.0-ClientRequest"
-        self.MethodId = kwargs.get("method_id")
-        self.Params = kwargs.get("params")
-        self.Service = kwargs.get("service")
-        self.Id: str = kwargs.get("request_id")
+        self.Mapping = mapping
+        self.Params = params
+        self.Id: str = id
         self.Result = None
         self.Sign = threading.Event()
 

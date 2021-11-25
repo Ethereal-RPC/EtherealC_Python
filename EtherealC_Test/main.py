@@ -6,7 +6,6 @@ from EtherealC.Request.Decorator import InvokeTypeFlags
 from EtherealC_Test.User import User
 from EtherealC_Test.UserRequest import UserRequest
 from EtherealC_Test.UserService import UserService
-from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 from EtherealC.Net.Abstract.Net import NetType
 from EtherealC.Client import ClientCore
 from EtherealC.Net import NetCore
@@ -41,33 +40,29 @@ def Single():
         port = mode
     prefixes = "ethereal://127.0.0.1:28015/NetDemo/".replace("28015", port)
     print("Client-{0}".format(prefixes))
-    types = AbstractTypes()
-    types.add(type=int, type_name="Int")
-    types.add(type=type(User()), type_name="User")
-    types.add(type=Number, type_name="Number")
-    types.add(type=str, type_name="String")
-    types.add(type=bool, type_name="Bool")
     # 建立网关
     net = NetCore.Register(WebSocketNet("demo"))
-    net.exception_event.register(OnException)
-    net.log_event.register(OnLog)
-    # 注册服务
-    service = ServiceCore.Register(service=UserService(name="Client", types=types), net=net)
+    net.exception_event.Register(OnException)
+    net.log_event.Register(OnLog)
     # 注册请求
     from EtherealC.Request.Abstract.Request import Request
-    request: Request = RequestCore.Register(net=net, request=UserRequest(name="Server", types=types))
+    request: UserRequest = RequestCore.Register(net=net, request=UserRequest())
+    # 注册服务
+    service = ServiceCore.Register(request=request, service=UserService())
     # 突出Service为正常类
     service.userRequest = request
     # 注册连接
-    client = ClientCore.Register(net=net, client=WebSocketClient(prefixes=prefixes))
-    request.connectSuccess_event.register(requestConnect)
-    client.disconnect_event.register(disconnect)
+    client = ClientCore.Register(request=request, client=WebSocketClient(prefixes=prefixes),isConnect=False)
+    request.connectSuccess_event.Register(requestConnect)
+    client.disconnect_event.Register(disconnect)
+    client.Connect()
     net.Publish()
     print("服务器初始化完成....")
 
 
 def requestConnect(request=None):
-    print("答案:" + str(request.Add(2, 3)))
+    print("答案:")
+    print(request.test("asd", 2, 3))
 
 
 def disconnect(client=None):

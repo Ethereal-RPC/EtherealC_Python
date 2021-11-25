@@ -12,7 +12,7 @@ class ErrorCode(Enum):
 
 
 class Error:
-    def __init__(self, **kwargs):
-        self.Code = None
-        self.Message = None
-        self.Data = None
+    def __init__(self, code=None,message=None,data=None):
+        self.Code = code
+        self.Message = message
+        self.Data = data

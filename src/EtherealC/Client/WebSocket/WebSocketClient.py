@@ -48,7 +48,12 @@ class WebSocketClient(Client, WebSocketClientFactory):
             from twisted.internet import reactor
             from twisted.python import log
             log.startLogging(sys.stdout)
-            url = urlparse(self.prefixes.replace("ethereal://", "ws://"))
+            if self.prefixes[-1] == "/":
+                self.url = self.prefixes + self.request.name
+            else:
+                self.url = self.prefixes + "/" + self.request.name
+            self.setSessionParameters(self.url.replace("ethereal://", "ws://"))
+            url = urlparse(self.url)
             reactor.connectTCP(url.hostname, url.port, self)
             if isSync:
                 self.syncSign.wait()

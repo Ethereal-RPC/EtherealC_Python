@@ -1,7 +1,5 @@
 from abc import ABC
 
-from EtherealC.Core.Model.AbstractTypes import AbstractTypes
-
 
 class ServiceConfig(ABC):
 

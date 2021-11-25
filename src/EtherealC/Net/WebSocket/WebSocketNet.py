@@ -1,7 +1,6 @@
 import threading
 
 from EtherealC.Client.WebSocket.WebSocketClient import WebSocketClient
-from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Net.Abstract.Net import Net
 from EtherealC.Net.WebSocket.WebSocketNetConfig import WebSocketNetConfig
@@ -21,9 +20,4 @@ class WebSocketNet(Net):
                 reactor.run(False)
 
         threading.Thread(target=reactorStart).start()
-        try:
-            if self.client is not None:
-                self.client.Connect()
-        except Exception as e:
-            self.OnException(exception=TrackException(exception=e))
         return True

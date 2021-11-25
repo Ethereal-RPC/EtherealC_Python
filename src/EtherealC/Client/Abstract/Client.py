@@ -1,18 +1,21 @@
 from abc import ABC, abstractmethod
 
+from EtherealC.Core.BaseCore.BaseCore import BaseCore
 from EtherealC.Core.Model.ClientRequestModel import ClientRequestModel
 from EtherealC.Core.Model.TrackException import TrackException
 from EtherealC.Core.Model.TrackLog import TrackLog
 from EtherealC.Client.Abstract.ClientConfig import ClientConfig
 from EtherealC.Core.Event import Event
+from EtherealC.Request.Abstract.Request import Request
 
 
-class Client(ABC):
+class Client(ABC,BaseCore):
 
     def __init__(self, prefixes):
+        BaseCore.__init__(self)
         self.config = None
         self.prefixes: str = prefixes
-        self.net = None
+        self.request: Request = None
         self.exception_event = Event()
         self.log_event = Event()
         self.connectSuccess_event = Event()

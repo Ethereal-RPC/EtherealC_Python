@@ -1,4 +1,3 @@
-from EtherealC.Core.Model.AbstractTypes import AbstractTypes
 from EtherealC.Service.Abstract.ServiceConfig import ServiceConfig
 
 

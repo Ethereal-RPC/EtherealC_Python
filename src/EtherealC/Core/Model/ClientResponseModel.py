@@ -3,9 +3,8 @@ from EtherealC.Core.Model.Error import Error
 
 class ClientResponseModel:
 
-    def __init__(self, **kwargs):
+    def __init__(self, result=None,error=None,id=None):
         self.Type: str = "ER-1.0-ClientResponse"
-        self.Result: str = kwargs.get("result")
-        self.Error: Error = kwargs.get("error")
-        self.Id: str = kwargs.get("request_id")
-        self.Service: str = kwargs.get("service")
+        self.Result: str = result
+        self.Error: Error = error
+        self.Id: str = id

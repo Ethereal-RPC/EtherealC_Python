@@ -3,6 +3,7 @@ from abc import ABC
 
 from EtherealC.Core.Model.ClientRequestModel import ClientRequestModel
 from EtherealC.Core.Model.ClientResponseModel import ClientResponseModel
+from EtherealC.Core.Model.Error import Error
 from EtherealC.Core.Model.ServerRequestModel import ServerRequestModel
 from EtherealC.Utils.JsonTool import JSONClientRequestModel
 
@@ -34,6 +35,10 @@ class ClientConfig(ABC):
             di = json.loads(_json)
             try:
                 instance.__dict__ = di
+                if instance.Error is not None:
+                    error = Error()
+                    error.__dict__ = di
+                    instance.Error = error
             except:
                 instance = None
             return instance

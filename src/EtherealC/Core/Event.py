@@ -2,7 +2,7 @@ class Event:
     def __init__(self):
         self.__listeners__: list = list()
 
-    def register(self, delegate):
+    def Register(self, delegate):
         if delegate not in self.__listeners__:
             self.__listeners__.append(delegate)
 

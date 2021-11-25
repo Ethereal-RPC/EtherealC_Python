@@ -10,7 +10,4 @@ class TrackLog:
     def __init__(self, code, message):
         self.code: LogCode = code
         self.message: str = message
-        self.server = None
-        self.net = None
-        self.request = None
-        self.service = None
+        self.sender = None

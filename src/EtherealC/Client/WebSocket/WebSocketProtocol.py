@@ -2,7 +2,9 @@ import json
 
 from autobahn.twisted import WebSocketClientProtocol
 
+from EtherealC.Client.Abstract.Client import Client
 from EtherealC.Core.Model.ClientResponseModel import ClientResponseModel
+from EtherealC.Core.Model.ServerRequestModel import ServerRequestModel
 from EtherealC.Core.Model.TrackException import TrackException, ExceptionCode
 from EtherealC.Net import NetCore
 
@@ -10,7 +12,7 @@ from EtherealC.Net import NetCore
 class WebSocketProtocol(WebSocketClientProtocol):
     def __init__(self):
         super().__init__()
-        self.client = None
+        self.client: Client = None
 
     def onConnect(self, response):
         print("Server connected: {0}".format(response.peer))
@@ -39,15 +41,18 @@ class WebSocketProtocol(WebSocketClientProtocol):
                     raise TrackException(code=ExceptionCode.Runtime, message="接收到了错误的ClientResponse:{0}".format(data))
                 try:
                     from twisted.internet import reactor
-                    reactor.callInThread(self.client.net.ClientResponseReceiveProcess, response)
+                    reactor.callInThread(self.client.request.ClientResponseReceiveProcess, response)
                 except Exception as e:
                     self.client.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))
             elif data_type == "ER-1.0-ServerRequest":
-                request = self.client.config.ServerRequestModelDeserialize(data)
+                request: ServerRequestModel = self.client.config.ServerRequestModelDeserialize(data)
                 if request is None:
                     raise TrackException(code=ExceptionCode.Runtime, message="接收到了错误的ServerRequest:{0}".format(data))
                 try:
                     from twisted.internet import reactor
-                    reactor.callInThread(self.client.net.ServerRequestReceiveProcess, request)
+                    if not self.client.request.services.__contains__(request.Service):
+                        raise TrackException(code=ExceptionCode.Runtime,
+                                             message="找不到Service:{0}".format(request.Service))
+                    reactor.callInThread(self.client.request.services[request.Service].ServerRequestReceiveProcess, request)
                 except Exception as e:
                     self.client.OnException(TrackException(code=ExceptionCode.Runtime, exception=e))

@@ -151,7 +151,7 @@ Ethereal也对混合编程进行了支持，而且是强有力的支持，Ethere
 ```text
 public class ServerService
 {
-    [ServiceMethod]
+    [ServiceMapping]
     public int Add(int a,int b)
     {
         return a + b;
@@ -167,7 +167,7 @@ types.Add<bool>("Bool");
 types.Add<User>("User");
 Net net = NetCore.Register("name", Net.NetType.WebSocket); //注册网关
 Server server = ServerCore.Register(net,"127.0.0.1:28015/NetDemo/");//注册服务端
-ServiceMethod service = ServiceCore.Register<ServerService>(net, "Server", types);//注册服务
+ServiceMapping service = ServiceCore.Register<ServerService>(net, "Server", types);//注册服务
 net.Publish();//启动
 ```
 
@@ -176,7 +176,7 @@ net.Publish();//启动
 ```java
 public interface ServerService
 {
-    @RequestMethod
+    @RequestMapping
     public Integer Add(Integer a,Integer b);
 }
 //注册数据类型
@@ -188,7 +188,7 @@ types.add(Boolean,"Bool");
 types.add(User.class,"User");
 Net net = NetCore.register("name", Net.NetType.WebSocket); //注册网关
 Client client = ClientCore.Register(net,"127.0.0.1:28015/NetDemo/");//注册客户端
-RequestMethod request = RequestCore.register(ServerRequest.class,net, "Server", types);//注册请求
+RequestMapping request = RequestCore.register(ServerRequest.class,net, "Server", types);//注册请求
 net.publish();//启动
 ```
 
@@ -205,7 +205,7 @@ Core一般含有Register、UnRegister、Get三大公开方法，Ethereal拥有�
 * **ServiceCore**：Service请求体的管理
 * **RequestCore**：Request请求体的管理
 
-  Core并非实质保存着对该实体的实例，实际上，RequestMethod、ServiceMethod、Client/Server都归于Net，Net作为一个网络节点，与其他网络节点交互（管理中心、注册中心）。
+  Core并非实质保存着对该实体的实例，实际上，RequestMapping、ServiceMapping、Client/Server都归于Net，Net作为一个网络节点，与其他网络节点交互（管理中心、注册中心）。
 
   Core的目标是屏蔽注册细节，也是为了保证访问安全，Core是用户交互操作的唯一入口。
 
@@ -226,8 +226,8 @@ Core根据Config配置产生具体的Object（实体），实体完成具体的�
 
 * **Net**：对内作为管理中心，管理实体，对外负责作为注册中心向外暴露服务。
 * **Client/Server**：通讯框架，Java使用Netty框架，Python使用Twisted。
-* **ServiceMethod**：服务实现类，负责请求的具体实现。
-* **RequestMethod**：服务请求类，负责向远程具体的服务实现发起请求。
+* **ServiceMapping**：服务实现类，负责请求的具体实现。
+* **RequestMapping**：服务请求类，负责向远程具体的服务实现发起请求。
 
 ## 技术文档
 
@@ -284,7 +284,7 @@ net.getConfig().setNetNodeIps(ips);
 BaseToken内含有唯一Key值属性，Ethereal通过用户给予的Key值属性，对Token进行生命周期处理。
 
 ```text
-[ServiceMethod]
+[ServiceMapping]
 public bool Login(BaseToken token, string username,string password)
 {
     token.Key = username;//为该token设置键值属性
@@ -297,7 +297,7 @@ public bool Login(BaseToken token, string username,string password)
 ```text
 public class ServerService
 {
-    [ServiceMethod]
+    [ServiceMapping]
     public int Add(BaseToken token,int a,int b)
     {
         return a + b;
@@ -312,7 +312,7 @@ Ethereal会根据用户的首参情况，来决定是否为首参注入token实�
 `public Integer Add(Integer a,Integer b);`
 
 ```text
-[ServiceMethod]
+[ServiceMapping]
 public bool Login(User user, string username,string password)
 {
     user.Key = username;//为该token设置键值属性
@@ -332,11 +332,11 @@ Ethereal致力于服务尽可能多的需求业务，虽然现今单工请求占
 public interface ServerService
 {
     //Player继承BaseToken
-    @RequestMethod
+    @RequestMapping
     public void Move(Player player);
-    @RequestMethod
+    @RequestMapping
     public void Attack(Player player);
-    @RequestMethod
+    @RequestMapping
     public void Chat(Player player);
 }
 ```
@@ -359,7 +359,7 @@ public class ServerService
     /// <param name="user">客户端用户</param>
     /// <param name="username">用户名</param>
     /// <param name="id">用户ID</param>
-    [ServiceMethod]
+    [ServiceMapping]
     public bool Register(User user, string username, long id)
     {
         user.Username = username;
@@ -372,7 +372,7 @@ public class ServerService
     /// <param name="sender">客户端用户</param>
     /// <param name="recevier_key">目标接收用户的唯一Key值</param>
     /// <param name="message">消息内容</param>
-    [ServiceMethod]
+    [ServiceMapping]
     public bool SendSay(User user, long recevier_key, string message)
     {
         //从Ethereal的Net节点中查找目的用户（经过Register注册的）
@@ -392,7 +392,7 @@ public class ServerService
 
 Ethereal的日志系统（TrackLog）力图最大化的信息输出，TrackLog实体中，包含了从该点向上一层不断抛出时的抛出实体信息。
 
-TrackLog中含有Net、RequestMethod\ServiceMethod、Client\Server实体，输出日志时，Log会根据事件发生点进行注入抛出，比如一个Service日志，将包含Service、Client、Net三个实体，同时应注意，事件输出之后，应保证这些核心实体不应该被外部保存，避免造成内存泄漏。
+TrackLog中含有Net、RequestMapping\ServiceMapping、Client\Server实体，输出日志时，Log会根据事件发生点进行注入抛出，比如一个Service日志，将包含Service、Client、Net三个实体，同时应注意，事件输出之后，应保证这些核心实体不应该被外部保存，避免造成内存泄漏。
 
 每一个核心实体，都包含了日志事件，您可以通过注册事件，实现日志输出事件的捕获，并且可以根据选择，捕获不同层级的事件。
 
@@ -410,7 +410,7 @@ private static void ExceptionEventFunction(TrackException exception)
 
 Ethereal的日志系统（TrackException）力图最大化的信息输出，TrackException实体中，包含了从该点向上一层不断抛出时的抛出实体信息。
 
-TrackException中含有Net、RequestMethod\ServiceMethod、Client\Server实体，抛出异常时，TrackException会根据事件发生点进行注入抛出，比如一个Service异常，将包含Service、Client、Net三个实体，同时应注意，事件输出之后，应保证这些核心实体不应该被外部保存，避免造成内存泄漏。
+TrackException中含有Net、RequestMapping\ServiceMapping、Client\Server实体，抛出异常时，TrackException会根据事件发生点进行注入抛出，比如一个Service异常，将包含Service、Client、Net三个实体，同时应注意，事件输出之后，应保证这些核心实体不应该被外部保存，避免造成内存泄漏。
 
 每一个核心实体，都包含了异常事件，您可以通过注册事件，实现日志输出事件的捕获，并且可以根据选择，捕获不同层级的事件。
 
@@ -428,13 +428,13 @@ TrackException中含有Net、RequestMethod\ServiceMethod、Client\Server实体�
 
 ### **服务拦截**
 
-Ethereal的服务拦截分为Net层拦截，以及Service层拦截，且两层拦截均含有Net、ServiceMethod、Method、Token信息，用户可以充分的获取有用信息来进行判断。
+Ethereal的服务拦截分为Net层拦截，以及Service层拦截，且两层拦截均含有Net、ServiceMapping、Method、Token信息，用户可以充分的获取有用信息来进行判断。
 
 在拦截委托中，如果您返回`True`将进行下一个拦截事件检测，而返回`False`，则消息立即拦截，后续的拦截策略不会执行。
 
 ```text
 service.InterceptorEvent += Interceptor;
-private static bool Interceptor(Net net, ServiceMethod service, MethodInfo method, Token token)
+private static bool Interceptor(Net net, ServiceMapping service, MethodInfo method, Token token)
 {
     if (token.Key == "123")
     {
@@ -446,7 +446,7 @@ private static bool Interceptor(Net net, ServiceMethod service, MethodInfo metho
 **同时，基于拦截器，Ethereal开发了权限拦截的功能拓展。**
 
 ```text
-[ServiceMethod(authority = 3)]
+[ServiceMapping(authority = 3)]
 public bool SendSay(User user, long recevier_key, string message)
 {
     //从Ethereal的Net节点中查找目的用户（经过Register注册的）
@@ -469,7 +469,7 @@ public class User:BaseToken,IAuthorityCheck
 ```
 
 1. `BaseToken`类实现`IAuthorityCheck`接口，实现权限检查函数
-2. 在方法注解中设置添加authority参数：`[ServiceMethod(authority = 3)]`，这里3就是提供的权限信息
+2. 在方法注解中设置添加authority参数：`[ServiceMapping(authority = 3)]`，这里3就是提供的权限信息
 3. 在拦截器中添加Ethereal权限检查函数
 
    `service.InterceptorEvent += Extension.Authority.AuthorityCheck.ServiceCheck;`

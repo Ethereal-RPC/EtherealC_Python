@@ -8,5 +8,5 @@ class Request:
         pass
 
     def __call__(self, func):
-        func.__doc__ = self
+        func.ethereal_request = self
         return func

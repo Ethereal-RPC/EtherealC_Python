@@ -4,5 +4,5 @@ class Service:
         pass
 
     def __call__(self, func):
-        func.__doc__ = self
+        func.ethereal_service = self
         return func

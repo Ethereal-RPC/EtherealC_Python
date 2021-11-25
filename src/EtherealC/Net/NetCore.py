@@ -12,7 +12,8 @@ def Get(name) -> Net:
 
 
 def Register(net: Net) -> Net:
-    if nets.get(net.name, None) is None:
+    if not net.isRegister:
+        net.isRegister = True
         nets[net.name] = net
     else:
         raise TrackException(code=ExceptionCode.Core,message="Net:{0}已注册".format(net.name))
@@ -20,10 +21,10 @@ def Register(net: Net) -> Net:
 
 
 def UnRegister(net):
-    for request in net.requests:
-        RequestCore.UnRegister(net_name=net, service_name=request.name)
-    for service in net.services:
-        ServiceCore.UnRegister(net_name=net, service_name=service.name)
-    ClientCore.UnRegister(client=net.client)
-    del nets[net.name]
-    return True
+    if net.isRegister:
+        if nets.__contains__(net.name):
+            del nets[net.name]
+        net.isRegister = False
+        return True
+    else:
+        raise TrackException(ExceptionCode.Core,"{0}已经UnRegister".format(net.name))
