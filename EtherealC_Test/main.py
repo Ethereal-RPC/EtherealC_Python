@@ -13,19 +13,15 @@ from EtherealC.Request import RequestCore
 from EtherealC.Service import ServiceCore
 
 
-def OnException(**kwargs):
-    from EtherealC.Core.Model.TrackException import TrackException
-    exception: TrackException = kwargs.get("exception")
+def OnException(exception):
     raise exception.exception
 
 
-def OnLog(**kwargs):
-    exception = kwargs.get("log")
-    print(exception)
+def OnLog(log):
+    print(log)
 
 
 def Single():
-    port = "28015"
     print("请选择端口(0-3)")
     mode = input()
     if mode == "0":
@@ -45,11 +41,9 @@ def Single():
     net.exception_event.Register(OnException)
     net.log_event.Register(OnLog)
     # 注册请求
-    from EtherealC.Request.Abstract.Request import Request
     request: UserRequest = RequestCore.Register(net=net, request=UserRequest())
     # 注册服务
     service = ServiceCore.Register(request=request, service=UserService())
-    # 突出Service为正常类
     service.userRequest = request
     # 注册连接
     client = ClientCore.Register(request=request, client=WebSocketClient(prefixes=prefixes),isConnect=False)
@@ -61,8 +55,16 @@ def Single():
 
 
 def requestConnect(request=None):
-    print("答案:")
-    print(request.test("asd", 2, 3))
+    print("---------------------------")
+    print("执行Add请求:")
+    print("2+3={0}".format(request.Add(2,3)))
+    print("---------------------------")
+    print("执行Login请求:")
+    print(request.Login("Python"))
+    print("---------------------------")
+    print("执行Hello请求:")
+    print(request.Hello())
+    print("---------------------------")
 
 
 def disconnect(client=None):

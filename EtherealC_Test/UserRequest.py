@@ -28,12 +28,17 @@ class UserRequest(WebSocketRequest):
     def UnInitialize(self):
         pass
 
-    @RequestMapping("SendSay")
-    def SendSay(self, listener_id: int, message: str) -> bool:
-        pass
 
     @RequestMapping("Add")
-    def Add(self, a: int, b: int) -> int:
+    def Add(self,a: int, b: int) -> int:
+        pass
+
+    @RequestMapping("Login")
+    def Login(self, username: str) -> bool:
+        pass
+
+    @RequestMapping("Hello")
+    def Hello(self) -> str:
         pass
 
     @AfterEvent("instance.test(s:s,d:k)")
